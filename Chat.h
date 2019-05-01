@@ -2,6 +2,7 @@
 #define CHAT_H
 
 #include <QMainWindow>
+#include <QCloseEvent>
 
 #include "Server.h"
 
@@ -16,6 +17,7 @@ class Chat : public QMainWindow
 public:
     explicit Chat(QWidget *parent = nullptr);
     void connectAll();
+    void closeEvent (QCloseEvent *event);
     ~Chat();
 
     QTcpSocket *socket;

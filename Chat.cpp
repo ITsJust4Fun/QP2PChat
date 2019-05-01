@@ -38,6 +38,12 @@ void Chat::socketDisconnect()
     socket->deleteLater();
 }
 
+void Chat::closeEvent (QCloseEvent *event)
+{
+    socket->disconnectFromHost();
+    event->accept();
+}
+
 Chat::~Chat()
 {
     delete ui;
