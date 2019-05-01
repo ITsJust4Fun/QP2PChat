@@ -31,7 +31,7 @@ public slots:
     void incomingConnection(int socketDescriptor);
     void socketReady();
     void socketDisconnect();
-    void addMsgToDatabase(QString user, QString msg);
+    void addMsgToDatabase(const QString &user, const QString &msg);
 };
 
 #endif // SERVER_H

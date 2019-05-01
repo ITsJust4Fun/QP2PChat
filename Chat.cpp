@@ -25,6 +25,8 @@ void Chat::connectAll()
     QObject::connect(sockets[0], SIGNAL(disconnected()), this, SLOT(socketDisconnect()));
     QObject::connect(ui->buttonSend, SIGNAL(pressed()), this, SLOT(sendMessage()));
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(clearTimeSockets()));
+    QObject::connect(this, SIGNAL(messageReceived(const QString &, const QString &)), server,
+                     SLOT(addMsgToDatabase(const QString &, const QString &)));
 }
 
 void Chat::scan()
@@ -76,12 +78,16 @@ void Chat::socketReady()
             if (doc.object().value("message") != QJsonValue::Undefined) {
                 QString msg = doc.object().value("message").toString();
                 ui->messageArea->setText(ui->messageArea->toPlainText() + msg + "\n");
+                emit messageReceived(user, msg);
             } else {
                 if (!sockets.contains(socket)) {
-                    qDebug() << "added " + doc.object().value("user").toString();
+                    QString user = doc.object().value("user").toString();
+                    qDebug() << "added " + user;
                     sockets.append(socket);
                     socket->write(QString("{" + head + ", " + "\"user\":"
                             + "\"" + localName + "\"}").toUtf8());
+                    //sockets[0]->write(QString("{" + head + ", " + "\"user\":"
+                    //        + "\"" + user + "\"}").toUtf8());
                 }
             }
             /*if (doc.object().size() == 3) {

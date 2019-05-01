@@ -43,6 +43,9 @@ public slots:
     void scan();
     void clearTimeSockets();
 
+signals:
+    void messageReceived(const QString &user, const QString &msg);
+
 private:
     Ui::Chat *ui;
 };
