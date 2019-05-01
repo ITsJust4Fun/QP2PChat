@@ -19,7 +19,7 @@ void Server::incomingConnection(int socketDescriptor)
     QObject::connect(socket, SIGNAL(readyRead()), this, SLOT(socketReady()));
     QObject::connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconnect()));
 
-    qDebug() << "connected " + QString::number(socketDescriptor);
+    qDebug() << "connected " + socket->peerAddress().toString().mid(7);
 }
 
 void Server::socketReady()
@@ -30,10 +30,8 @@ void Server::socketReady()
 void Server::socketDisconnect()
 {
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
-    qDebug() << sockets;
     sockets.removeOne(socket);
-    qDebug() << sockets;
-    qDebug() << "disconnected " + socket->localAddress().toString();
+    qDebug() << "disconnected " + socket->peerAddress().toString().mid(7);
     socket->deleteLater();
 }
 
