@@ -31,12 +31,23 @@ void Chat::scan()
 {
     QString part = "192.168.0.";
     for (int i = 0; i < 256; i++) {
-        if (i != 103) {
+        QString ip = part + QString::number(i);
+        if (!isContainsConnection(ip)) {
             timeSockets.append(new QTcpSocket(this));
-            timeSockets.last()->connectToHost(part + QString::number(i), port);
+            timeSockets.last()->connectToHost(ip, port);
         }
     }
     timer->start();
+}
+
+bool Chat::isContainsConnection(const QString &ip)
+{
+    for (auto i : sockets) {
+        if (i->peerAddress().toString() == ip) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void Chat::sendMessage()
@@ -63,7 +74,7 @@ void Chat::socketReady()
                 QString msg = doc.object().value("message").toString();
                 ui->messageArea->setText(ui->messageArea->toPlainText() + msg + "\n");
             } else {
-                if (socket->peerAddress().toString() != addr) {
+                if (!sockets.contains(socket)) {
                     qDebug() << "added " + socket->peerAddress().toString();
                     sockets.append(socket);
                 }

@@ -20,6 +20,7 @@ public:
     explicit Chat(QWidget *parent = nullptr);
     void connectAll();
     void closeEvent (QCloseEvent *event);
+    bool isContainsConnection(const QString &ip);
     ~Chat();
 
     QList<QTcpSocket *> sockets;
