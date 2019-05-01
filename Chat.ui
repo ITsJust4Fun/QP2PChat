@@ -14,7 +14,7 @@
    <string>Chat</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout" rowstretch="3,1" columnstretch="5,10,2">
+   <layout class="QGridLayout" name="gridLayout" rowstretch="10,1" columnstretch="2,5,1">
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -50,7 +50,7 @@
      <widget class="QTextEdit" name="messageEdit"/>
     </item>
     <item row="0" column="0" rowspan="2">
-     <widget class="QListView" name="listView"/>
+     <widget class="QListWidget" name="listWidget"/>
     </item>
    </layout>
   </widget>
