@@ -30,6 +30,10 @@ void Server::socketReady()
 void Server::socketDisconnect()
 {
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
+    qDebug() << sockets;
+    sockets.removeOne(socket);
+    qDebug() << sockets;
+    qDebug() << "disconnected " + socket->localAddress().toString();
     socket->deleteLater();
 }
 
