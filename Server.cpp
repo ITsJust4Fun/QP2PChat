@@ -29,6 +29,10 @@ void Server::addNewUser(QJsonDocument &doc, QTcpSocket *socket)
 {
     QString user = doc.object().value("user").toString();
     QString ip = socket->peerAddress().toString().mid(7);
+    if (users->keys().contains(user)) {
+        (*users)[user][ip][0] = ip;
+        return;
+    }
     QMap<QString, QList<QString>> info;
     QList<QString> list;
     QList<QString> ipList;
@@ -36,6 +40,7 @@ void Server::addNewUser(QJsonDocument &doc, QTcpSocket *socket)
     info.insert("ip", ipList);
     info.insert("messages", list);
     users->insert(user, info);
+    qDebug() << *users;
 }
 
 void Server::sendMessage(QJsonDocument &doc)
@@ -48,7 +53,7 @@ void Server::sendMessage(QJsonDocument &doc)
         QString ans = "{" + head + ", " + "\"user\":"
                 + "\"" + localName + "\", "
                 + "\"message\":"
-                + "\"" + "[" + user + "]:" + msg + "\"}";
+                + "\"" + "[" + localName + "]:" + msg + "\"}";
         socket->write(ans.toUtf8());
     }
 }

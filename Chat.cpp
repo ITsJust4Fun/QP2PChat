@@ -6,7 +6,7 @@ Chat::Chat(QWidget *parent) :
     ui(new Ui::Chat)
 {
     timer = new QTimer();
-    timer->setInterval(1000);
+    timer->setInterval(100000);
     sockets.append(new QTcpSocket(this));
 
     server = new Server();
@@ -35,6 +35,8 @@ void Chat::scan()
         if (!isContainsConnection(ip)) {
             timeSockets.append(new QTcpSocket(this));
             timeSockets.last()->connectToHost(ip, port);
+            QObject::connect(timeSockets.last(), SIGNAL(readyRead()), this, SLOT(socketReady()));
+            QObject::connect(timeSockets.last(), SIGNAL(disconnected()), this, SLOT(socketDisconnect()));
         }
     }
     timer->start();
@@ -53,6 +55,7 @@ bool Chat::isContainsConnection(const QString &ip)
 void Chat::sendMessage()
 {
     QString msg = ui->messageEdit->toPlainText();
+    ui->messageEdit->clear();
     ui->messageArea->setText(ui->messageArea->toPlainText() + msg + "\n");
     QString ans = "{" + head + ", " + "\"user\":"
             + "\"" + user + "\", "
@@ -75,8 +78,10 @@ void Chat::socketReady()
                 ui->messageArea->setText(ui->messageArea->toPlainText() + msg + "\n");
             } else {
                 if (!sockets.contains(socket)) {
-                    qDebug() << "added " + socket->peerAddress().toString();
+                    qDebug() << "added " + doc.object().value("user").toString();
                     sockets.append(socket);
+                    socket->write(QString("{" + head + ", " + "\"user\":"
+                            + "\"" + localName + "\"}").toUtf8());
                 }
             }
             /*if (doc.object().size() == 3) {
