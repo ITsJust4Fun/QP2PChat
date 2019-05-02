@@ -34,6 +34,7 @@ public slots:
     void socketReady();
     void socketDisconnect();
     void addMsgToDatabase(const QString &user, const QString &msg);
+    void setData(const QString &user, const QString &ip);
 };
 
 #endif // SERVER_H

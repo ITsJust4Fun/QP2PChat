@@ -5,8 +5,10 @@
 #include <QCloseEvent>
 #include <QHostInfo>
 #include <QTimer>
+#include <QMessageBox>
 
 #include "Server.h"
+#include "StartWidget.h"
 
 namespace Ui {
 class Chat;
@@ -33,10 +35,12 @@ public:
     QJsonParseError docError;
     QString head = "\"type\":\"p2p_connected\", \"status\":\"OK\"";
     quint16 port = 4444;
-    QString addr = "192.168.0.103";
-    QString localName = "J4F";
-    QString user = "OneWay";
+    QString addr;
+    QString localName;
+    QString user;
     QTimer *timer;
+    StartWidget *startWidget;
+    bool isDataSet;
 
 public slots:
     void socketReady();
@@ -44,6 +48,7 @@ public slots:
     void sendMessage();
     void scan();
     void clearTimeSockets();
+    void setData(const QString &user, const QString &ip);
 
 signals:
     void messageReceived(const QString &user, const QString &msg);

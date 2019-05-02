@@ -11,7 +11,9 @@ Chat::Chat(QWidget *parent) :
 
     server = new Server();
     server->startServer(port);
-    sockets[0]->connectToHost(addr, port);
+    isDataSet = false;
+
+    startWidget = new StartWidget();
 
     ui->setupUi(this);
     connectAll();
@@ -21,11 +23,16 @@ void Chat::connectAll()
 {
     QObject::connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
     QObject::connect(ui->actionScan, SIGNAL(triggered()), this, SLOT(scan()));
+    QObject::connect(ui->actionSettings, SIGNAL(triggered()), startWidget, SLOT(show()));
     connectSocket(sockets[0]);
     QObject::connect(ui->buttonSend, SIGNAL(pressed()), this, SLOT(sendMessage()));
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(clearTimeSockets()));
     QObject::connect(this, SIGNAL(messageReceived(const QString &, const QString &)), server,
                      SLOT(addMsgToDatabase(const QString &, const QString &)));
+    QObject::connect(startWidget, SIGNAL(dataReady(const QString &, const QString &)),
+                     this, SLOT(setData(const QString &, const QString &)));
+    QObject::connect(startWidget, SIGNAL(dataReady(const QString &, const QString &)),
+                     server, SLOT(setData(const QString &, const QString &)));
 }
 
 void Chat::connectSocket(QTcpSocket *socket)
@@ -43,6 +50,12 @@ void Chat::connectToServer(const QString &ip)
 
 void Chat::scan()
 {
+    if (!isDataSet) {
+        QMessageBox messageBox;
+        messageBox.critical(nullptr, "Error", "Please set username and ip in settings");
+        messageBox.setFixedSize(500,200);
+        return;
+    }
     QString part = "192.168.0.";
     for (int i = 0; i < 256; i++) {
         QString ip = part + QString::number(i);
@@ -65,6 +78,12 @@ bool Chat::isContainsConnection(const QString &ip)
 
 void Chat::sendMessage()
 {
+    if (!isDataSet) {
+        QMessageBox messageBox;
+        messageBox.critical(nullptr, "Error", "Please set username and ip in settings");
+        messageBox.setFixedSize(500,200);
+        return;
+    }
     QString msg = ui->messageEdit->toPlainText();
     ui->messageEdit->clear();
     ui->messageArea->setText(ui->messageArea->toPlainText() + msg + "\n");
@@ -96,6 +115,7 @@ void Chat::socketReady()
         } else {
             if (!sockets.contains(socket)) {
                 QString user = doc.object().value("user").toString();
+                this->user = user;
                 qDebug() << "added " + user;
                 sockets.append(socket);
                 socket->write(QString("{" + head + ", " + "\"user\":"
@@ -117,6 +137,15 @@ void Chat::socketReady()
 
         }*/
     }
+}
+
+void Chat::setData(const QString &user, const QString &ip)
+{
+    addr = ip;
+    localName = user;
+    sockets[0]->connectToHost(addr, port);
+
+    isDataSet = true;
 }
 
 void Chat::socketDisconnect()
@@ -151,4 +180,5 @@ Chat::~Chat()
     delete ui;
     delete server;
     delete timer;
+    delete startWidget;
 }

@@ -74,6 +74,12 @@ QTcpSocket * Server::findSocket(QString name)
     return socket;
 }
 
+void Server::setData(const QString &user, const QString &ip)
+{
+    localName = user;
+    Q_UNUSED(ip);
+}
+
 void Server::socketReady()
 {
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
