@@ -6,7 +6,7 @@ Chat::Chat(QWidget *parent) :
     ui(new Ui::Chat)
 {
     timer = new QTimer();
-    timer->setInterval(100000);
+    timer->setInterval(500);
     sockets.append(new QTcpSocket(this));
 
     server = new Server();
@@ -87,8 +87,11 @@ void Chat::socketReady()
             ui->messageArea->setText(ui->messageArea->toPlainText() + msg + "\n");
             emit messageReceived(user, msg);
         } else if (doc.object().value("ip") != QJsonValue::Undefined) {
-            connectToServer(doc.object().value("ip").toString());
-            timer->start();
+            QString ip = doc.object().value("ip").toString();
+            if (!isContainsConnection("ip") && !timer->isActive()) {
+                connectToServer(ip);
+                timer->start();
+            }
         } else {
             if (!sockets.contains(socket)) {
                 QString user = doc.object().value("user").toString();
