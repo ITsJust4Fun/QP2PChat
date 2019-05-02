@@ -21,12 +21,24 @@ void Chat::connectAll()
 {
     QObject::connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
     QObject::connect(ui->actionScan, SIGNAL(triggered()), this, SLOT(scan()));
-    QObject::connect(sockets[0], SIGNAL(readyRead()), this, SLOT(socketReady()));
-    QObject::connect(sockets[0], SIGNAL(disconnected()), this, SLOT(socketDisconnect()));
+    connectSocket(sockets[0]);
     QObject::connect(ui->buttonSend, SIGNAL(pressed()), this, SLOT(sendMessage()));
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(clearTimeSockets()));
     QObject::connect(this, SIGNAL(messageReceived(const QString &, const QString &)), server,
                      SLOT(addMsgToDatabase(const QString &, const QString &)));
+}
+
+void Chat::connectSocket(QTcpSocket *socket)
+{
+    QObject::connect(socket, SIGNAL(readyRead()), this, SLOT(socketReady()));
+    QObject::connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconnect()));
+}
+
+void Chat::connectToServer(const QString &ip)
+{
+    timeSockets.append(new QTcpSocket(this));
+    timeSockets.last()->connectToHost(ip, port);
+    connectSocket(timeSockets.last());
 }
 
 void Chat::scan()
@@ -35,10 +47,7 @@ void Chat::scan()
     for (int i = 0; i < 256; i++) {
         QString ip = part + QString::number(i);
         if (!isContainsConnection(ip)) {
-            timeSockets.append(new QTcpSocket(this));
-            timeSockets.last()->connectToHost(ip, port);
-            QObject::connect(timeSockets.last(), SIGNAL(readyRead()), this, SLOT(socketReady()));
-            QObject::connect(timeSockets.last(), SIGNAL(disconnected()), this, SLOT(socketDisconnect()));
+            connectToServer(ip);
         }
     }
     timer->start();
@@ -72,39 +81,37 @@ void Chat::socketReady()
     data = socket->readAll();
     doc = QJsonDocument::fromJson(data, &docError);
 
-    if (docError.errorString().toInt() == QJsonParseError::NoError) {
-        if (doc.object().value("type").toString() == "p2p_connected"
-                && doc.object().value("status").toString() == "OK") {
-            if (doc.object().value("message") != QJsonValue::Undefined) {
-                QString msg = doc.object().value("message").toString();
-                ui->messageArea->setText(ui->messageArea->toPlainText() + msg + "\n");
-                emit messageReceived(user, msg);
-            } else {
-                if (!sockets.contains(socket)) {
-                    QString user = doc.object().value("user").toString();
-                    qDebug() << "added " + user;
-                    sockets.append(socket);
-                    socket->write(QString("{" + head + ", " + "\"user\":"
-                            + "\"" + localName + "\"}").toUtf8());
-                    //sockets[0]->write(QString("{" + head + ", " + "\"user\":"
-                    //        + "\"" + user + "\"}").toUtf8());
-                }
+    if (Server::isJsonValid(doc, docError)) {
+        if (doc.object().value("message") != QJsonValue::Undefined) {
+            QString msg = doc.object().value("message").toString();
+            ui->messageArea->setText(ui->messageArea->toPlainText() + msg + "\n");
+            emit messageReceived(user, msg);
+        } else if (doc.object().value("ip") != QJsonValue::Undefined) {
+            connectToServer(doc.object().value("ip").toString());
+            timer->start();
+        } else {
+            if (!sockets.contains(socket)) {
+                QString user = doc.object().value("user").toString();
+                qDebug() << "added " + user;
+                sockets.append(socket);
+                socket->write(QString("{" + head + ", " + "\"user\":"
+                        + "\"" + localName + "\"}").toUtf8());
             }
-            /*if (doc.object().size() == 3) {
-                QString name = doc.object().value("user").toString();
-                QString ans = "{" + head + ", " + "\"user\":"
-                        + "\"" + localName + "\"}";
-                socket->write(ans.toUtf8());
-                ans = "{" + head + ", " + "\"user\":"
-                        + "\"" + name + "\"}";
-                sockets[0]->write(ans.toUtf8());
-                ui->listWidget->addItem(new QListWidgetItem(name));
-            } else if () {
-
-            } else {
-
-            }*/
         }
+        /*if (doc.object().size() == 3) {
+            QString name = doc.object().value("user").toString();
+            QString ans = "{" + head + ", " + "\"user\":"
+                    + "\"" + localName + "\"}";
+            socket->write(ans.toUtf8());
+            ans = "{" + head + ", " + "\"user\":"
+                    + "\"" + name + "\"}";
+            sockets[0]->write(ans.toUtf8());
+            ui->listWidget->addItem(new QListWidgetItem(name));
+        } else if () {
+
+        } else {
+
+        }*/
     }
 }
 

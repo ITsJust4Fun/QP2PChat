@@ -16,6 +16,8 @@ public:
     void sendMessage(QJsonDocument &doc);
     void addNewUser(QJsonDocument &doc, QTcpSocket *socket);
     QTcpSocket * findSocket(QString name);
+    static bool isJsonValid(QJsonDocument &doc, QJsonParseError &docError);
+    void connectWithServerReq(const QString &ip);
     virtual ~Server();
 
     QList<QTcpSocket *> sockets;

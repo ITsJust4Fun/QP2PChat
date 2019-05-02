@@ -19,6 +19,8 @@ class Chat : public QMainWindow
 public:
     explicit Chat(QWidget *parent = nullptr);
     void connectAll();
+    void connectSocket(QTcpSocket *socket);
+    void connectToServer(const QString &ip);
     void closeEvent (QCloseEvent *event);
     bool isContainsConnection(const QString &ip);
     ~Chat();

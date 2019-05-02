@@ -80,18 +80,34 @@ void Server::socketReady()
     data = socket->readAll();
     doc = QJsonDocument::fromJson(data, &docError);
 
-    if (docError.errorString().toInt() == QJsonParseError::NoError) {
-        if (doc.object().value("type").toString() == "p2p_connected"
-                && doc.object().value("status").toString() == "OK") {
-            if (doc.object().value("message") != QJsonValue::Undefined) {
-                sendMessage(doc);
-            } else {
-                addNewUser(doc, socket);
-            }
-            return;
+    if (isJsonValid(doc, docError)) {
+        if (doc.object().value("message") != QJsonValue::Undefined) {
+            sendMessage(doc);
+        } else {
+            addNewUser(doc, socket);
+            QString ip = socket->peerAddress().toString().mid(7);
+            connectWithServerReq(ip);
         }
+        return;
     }
     socket->disconnectFromHost();
+}
+
+void Server::connectWithServerReq(const QString &ip)
+{
+    QString ans = "{" + head + ", " + "\"ip\":"
+            + "\"" + ip + "\"}";
+    sockets[0]->write(ans.toUtf8());
+}
+
+bool Server::isJsonValid(QJsonDocument &doc, QJsonParseError &docError)
+{
+    if ((docError.errorString().toInt() == QJsonParseError::NoError)
+            && (doc.object().value("type").toString() == "p2p_connected")
+            && (doc.object().value("status").toString() == "OK")) {
+            return true;
+    }
+    return false;
 }
 
 void Server::socketDisconnect()
