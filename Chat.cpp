@@ -84,6 +84,7 @@ void Chat::socketReady()
     if (Server::isJsonValid(doc, docError)) {
         if (doc.object().value("message") != QJsonValue::Undefined) {
             QString msg = doc.object().value("message").toString();
+            QString user = doc.object().value("user").toString();
             ui->messageArea->setText(ui->messageArea->toPlainText() + msg + "\n");
             emit messageReceived(user, msg);
         } else if (doc.object().value("ip") != QJsonValue::Undefined) {
