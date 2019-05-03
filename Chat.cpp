@@ -80,10 +80,17 @@ void Chat::sendMessage()
 {
     if (!isDataSet) {
         QMessageBox messageBox;
-        messageBox.critical(nullptr, "Error", "Please set username and ip in settings");
+        messageBox.critical(nullptr, "Error", "Please set username and ip in settings!");
         messageBox.setFixedSize(500,200);
         return;
     }
+    if (!ui->listWidget->currentItem()) {
+        QMessageBox messageBox;
+        messageBox.critical(nullptr, "Error", "Please select user!");
+        messageBox.setFixedSize(500,200);
+        return;
+    }
+    QString user = ui->listWidget->currentItem()->text();
     QString msg = ui->messageEdit->toPlainText();
     ui->messageEdit->clear();
     ui->messageArea->setText(ui->messageArea->toPlainText() + msg + "\n");
@@ -115,7 +122,6 @@ void Chat::socketReady()
         } else {
             if (!sockets.contains(socket)) {
                 QString user = doc.object().value("user").toString();
-                this->user = user;
                 if (!isListWidgetContains(user)) {
                     ui->listWidget->addItem(new QListWidgetItem(user));
                 }

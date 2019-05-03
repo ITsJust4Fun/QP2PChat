@@ -38,7 +38,6 @@ public:
     quint16 port = 4444;
     QString addr;
     QString localName;
-    QString user;
     QTimer *timer;
     StartWidget *startWidget;
     bool isDataSet;
