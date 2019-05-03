@@ -7,6 +7,7 @@
 #include <QTimer>
 #include <QMessageBox>
 #include <QListWidgetItem>
+#include <QShortcut>
 
 #include "Server.h"
 #include "StartWidget.h"
@@ -45,6 +46,7 @@ public:
     QString localName;
     QTimer *timer;
     StartWidget *startWidget;
+    QShortcut *sendMsg;
     bool isDataSet;
 
 public slots:

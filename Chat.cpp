@@ -7,6 +7,9 @@ Chat::Chat(QWidget *parent) :
 {
     setWindowIcon(QIcon(":/icons/chat_icon.png"));
 
+    sendMsg = new QShortcut(this);
+    sendMsg->setKey(Qt::CTRL + Qt::Key_Return);
+
     timer = new QTimer();
     timer->setInterval(500);
     sockets.append(new QTcpSocket(this));
@@ -29,6 +32,7 @@ void Chat::connectAll()
     QObject::connect(ui->actionSettings, SIGNAL(triggered()), startWidget, SLOT(show()));
     connectSocket(sockets[0]);
     QObject::connect(ui->buttonSend, SIGNAL(pressed()), this, SLOT(sendMessage()));
+    QObject::connect(sendMsg, SIGNAL(activated()), this, SLOT(sendMessage()));
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(clearTimeSockets()));
     QObject::connect(this, SIGNAL(messageReceived(const QString &, const QString &)), server,
                      SLOT(addMsgToDatabase(const QString &, const QString &)));
@@ -257,4 +261,5 @@ Chat::~Chat()
     delete server;
     delete timer;
     delete startWidget;
+    delete sendMsg;
 }
