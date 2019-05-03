@@ -33,6 +33,9 @@ void Chat::connectAll()
                      this, SLOT(setData(const QString &, const QString &)));
     QObject::connect(startWidget, SIGNAL(dataReady(const QString &, const QString &)),
                      server, SLOT(setData(const QString &, const QString &)));
+    QObject::connect(ui->listWidget, SIGNAL(itemClicked(QListWidgetItem *)),
+                     this, SLOT(getMessages(QListWidgetItem *)));
+
 }
 
 void Chat::connectSocket(QTcpSocket *socket)
@@ -101,6 +104,11 @@ void Chat::sendMessage()
     sockets[0]->write(ans.toUtf8());
 }
 
+void Chat::getMessages(QListWidgetItem *item)
+{
+    Q_UNUSED(item);
+}
+
 void Chat::socketReady()
 {
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
@@ -111,7 +119,7 @@ void Chat::socketReady()
         if (doc.object().value("message") != QJsonValue::Undefined) {
             QString msg = doc.object().value("message").toString();
             QString user = doc.object().value("user").toString();
-            ui->messageArea->setText(ui->messageArea->toPlainText() + msg + "\n");
+            incomingMessage(user, msg);
             emit messageReceived(user, msg);
         } else if (doc.object().value("ip") != QJsonValue::Undefined) {
             QString ip = doc.object().value("ip").toString();
@@ -130,20 +138,34 @@ void Chat::socketReady()
                         + "\"" + localName + "\"}").toUtf8());
             }
         }
-        /*if (doc.object().size() == 3) {
-            QString name = doc.object().value("user").toString();
-            QString ans = "{" + head + ", " + "\"user\":"
-                    + "\"" + localName + "\"}";
-            socket->write(ans.toUtf8());
-            ans = "{" + head + ", " + "\"user\":"
-                    + "\"" + name + "\"}";
-            sockets[0]->write(ans.toUtf8());
-            ui->listWidget->addItem(new QListWidgetItem(name));
-        } else if () {
+    }
+}
 
-        } else {
+void Chat::incomingMessage(const QString &user, const QString &msg)
+{
+    if (ui->listWidget->currentItem()) {
+        if (ui->listWidget->currentItem()->text() == user) {
+            ui->messageArea->setText(ui->messageArea->toPlainText() + msg + "\n");
+            return;
+        }
+    }
+    QListWidgetItem *userItem = ui->listWidget->findItems(user, Qt::MatchContains)[0];
+    addUnreadMessage(userItem);
+}
 
-        }*/
+void Chat::addUnreadMessage(QListWidgetItem *item)
+{
+    QString user = item->text();
+    if ((user.lastIndexOf('[') != -1)
+            && (user.lastIndexOf(']') != -1)) {
+        int left = user.lastIndexOf('[');
+        int right = user.lastIndexOf(']');
+        QString snum = user.mid(left + 1, right - left - 1);
+        int num = snum.toInt();
+        num++;
+        item->setText(user.left(left) + '[' + QString::number(num) + ']');
+    } else {
+        item->setText(user + "[1]");
     }
 }
 

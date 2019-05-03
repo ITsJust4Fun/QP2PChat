@@ -6,6 +6,7 @@
 #include <QHostInfo>
 #include <QTimer>
 #include <QMessageBox>
+#include <QListWidgetItem>
 
 #include "Server.h"
 #include "StartWidget.h"
@@ -24,6 +25,8 @@ public:
     void connectSocket(QTcpSocket *socket);
     void connectToServer(const QString &ip);
     void closeEvent (QCloseEvent *event);
+    void incomingMessage(const QString &user, const QString &msg);
+    void addUnreadMessage(QListWidgetItem *item);
     bool isContainsConnection(const QString &ip);
     bool isListWidgetContains(const QString &user);
     ~Chat();
@@ -49,6 +52,7 @@ public slots:
     void scan();
     void clearTimeSockets();
     void setData(const QString &user, const QString &ip);
+    void getMessages(QListWidgetItem *item);
 
 signals:
     void messageReceived(const QString &user, const QString &msg);
