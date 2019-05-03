@@ -25,6 +25,7 @@ public:
     void connectToServer(const QString &ip);
     void closeEvent (QCloseEvent *event);
     bool isContainsConnection(const QString &ip);
+    bool isListWidgetContains(const QString &user);
     ~Chat();
 
     QList<QTcpSocket *> sockets;

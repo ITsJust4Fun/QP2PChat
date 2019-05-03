@@ -116,7 +116,9 @@ void Chat::socketReady()
             if (!sockets.contains(socket)) {
                 QString user = doc.object().value("user").toString();
                 this->user = user;
-                ui->listWidget->addItem(new QListWidgetItem(user));
+                if (!isListWidgetContains(user)) {
+                    ui->listWidget->addItem(new QListWidgetItem(user));
+                }
                 sockets.append(socket);
                 socket->write(QString("{" + head + ", " + "\"user\":"
                         + "\"" + localName + "\"}").toUtf8());
@@ -146,6 +148,14 @@ void Chat::setData(const QString &user, const QString &ip)
     sockets[0]->connectToHost(addr, port);
 
     isDataSet = true;
+}
+
+bool Chat::isListWidgetContains(const QString &user)
+{
+    if (ui->listWidget->findItems(user, Qt::MatchContains).size() != 0) {
+        return true;
+    }
+    return false;
 }
 
 void Chat::socketDisconnect()
