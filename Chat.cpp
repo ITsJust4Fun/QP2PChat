@@ -108,7 +108,7 @@ void Chat::getMessages(QListWidgetItem *item)
 {
     removeUnreadMessagesFlag(item);
     QStringList list = server->getMessagesFrom(item->text());
-    ui->messageArea->setText(list.join("\n"));
+    ui->messageArea->setText(list.join("\n") + "\n");
 }
 
 void Chat::socketReady()
