@@ -6,6 +6,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
+#include <QJsonArray>
 #include <QDebug>
 
 class Server : public QTcpServer
@@ -19,6 +20,7 @@ public:
     static bool isJsonValid(QJsonDocument &doc, QJsonParseError &docError);
     void connectWithServerReq(const QString &ip);
     QStringList getMessagesFrom(const QString &user);
+    QList<QString> changeSenderInMessages(QJsonArray &messages, const QString &user);
     virtual ~Server();
 
     QList<QTcpSocket *> sockets;

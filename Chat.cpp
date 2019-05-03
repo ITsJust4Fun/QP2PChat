@@ -96,6 +96,9 @@ void Chat::sendMessage()
     QString user = ui->listWidget->currentItem()->text();
     QString msg = ui->messageEdit->toPlainText();
     ui->messageEdit->clear();
+    if (ui->messageArea->toPlainText() == "\n") {
+        ui->messageArea->clear();
+    }
     ui->messageArea->setText(ui->messageArea->toPlainText() + msg + "\n");
     QString ans = "{" + head + ", " + "\"user\":"
             + "\"" + user + "\", "
@@ -136,11 +139,25 @@ void Chat::socketReady()
                     ui->listWidget->addItem(new QListWidgetItem(user));
                 }
                 sockets.append(socket);
-                socket->write(QString("{" + head + ", " + "\"user\":"
-                        + "\"" + localName + "\"}").toUtf8());
+                socket->write(getInitAnswer(user).toUtf8());
             }
         }
     }
+}
+
+QString Chat::getInitAnswer(const QString &user)
+{
+    QString answer = "{" + head + ", " + "\"user\":"
+            + "\"" + localName + "\", " + "\"messages\": [";
+    QStringList list = server->getMessagesFrom(user);
+    if (list.isEmpty()) {
+        answer += "]}";
+        return answer;
+    }
+    answer += "\"";
+    QString msgs = list.join("\", \"");
+    answer += msgs + "\"]}";
+    return answer;
 }
 
 void Chat::incomingMessage(const QString &user, const QString &msg)

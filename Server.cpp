@@ -37,12 +37,29 @@ void Server::addNewUser(QJsonDocument &doc, QTcpSocket *socket)
         return;
     }
     QMap<QString, QList<QString>> info;
-    QList<QString> list;
+    QJsonArray messages = doc.object().value("messages").toArray();
+    QList<QString> list = changeSenderInMessages(messages, user);
     QList<QString> ipList;
     ipList.append(ip);
     info.insert("ip", ipList);
     info.insert("messages", list);
     users->insert(user, info);
+}
+
+QList<QString> Server::changeSenderInMessages(QJsonArray &messages, const QString &user)
+{
+    QList<QString> list;
+    for (auto i : messages) {
+        QString message = i.toString();
+        if ((message.indexOf('[') != -1)
+                && (message.indexOf("]:") != -1)) {
+            message = message.mid(message.indexOf("]:") + 2);
+        } else {
+            message = "[" + user + "]:" + message;
+        }
+        list.append(message);
+    }
+    return list;
 }
 
 void Server::sendMessage(QJsonDocument &doc)

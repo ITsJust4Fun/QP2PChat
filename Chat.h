@@ -28,6 +28,7 @@ public:
     void incomingMessage(const QString &user, const QString &msg);
     void addUnreadMessage(QListWidgetItem *item);
     void removeUnreadMessagesFlag(QListWidgetItem *item);
+    QString getInitAnswer(const QString &user);
     bool isContainsConnection(const QString &ip);
     bool isListWidgetContains(const QString &user);
     ~Chat();
