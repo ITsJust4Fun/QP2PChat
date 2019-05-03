@@ -2,6 +2,7 @@
 #define STARTWIDGET_H
 
 #include <QWidget>
+#include <QHostInfo>
 
 namespace Ui {
 class StartWidget;
@@ -22,6 +23,7 @@ signals:
     void dataReady(const QString &user, const QString &ip);
 
 private:
+    QStringList ipList;
     Ui::StartWidget *ui;
 };
 
