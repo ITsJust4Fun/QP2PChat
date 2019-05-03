@@ -14,7 +14,7 @@
    <string>Chat</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout" rowstretch="10,1" columnstretch="2,10,0">
+   <layout class="QGridLayout" name="gridLayout" rowstretch="10,1" columnstretch="4,14,3">
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -33,13 +33,26 @@
     <item row="1" column="2">
      <widget class="QPushButton" name="buttonSend">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="text">
+      <property name="toolTip">
        <string>Send</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="icons.qrc">
+        <normaloff>:/icons/send.png</normaloff>:/icons/send.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
+       </size>
       </property>
      </widget>
     </item>

@@ -5,11 +5,20 @@ Server::Server()
     users = new QMap<QString, QMap<QString, QList<QString>>>();
 }
 
+/*
+ * Запуск сервера
+*/
 void Server::startServer(quint16 port)
 {
     this->listen(QHostAddress::Any, port);
 }
 
+/*
+ * При входящем соединении.
+ * 1)Создаётся и запоминается сокет
+ * 2)Выводится дебаг сообщение об успешном соединении
+ * 3)Отправляется ответ клиенту об успешном соединении
+*/
 void Server::incomingConnection(int socketDescriptor)
 {
     if (localName == "") {
@@ -28,6 +37,10 @@ void Server::incomingConnection(int socketDescriptor)
                           + "\"" + localName + "\"}").toUtf8());
 }
 
+/*
+ * Добавление нового пользователя
+ * в базу данных сообщений.
+*/
 void Server::addNewUser(QJsonDocument &doc, QTcpSocket *socket)
 {
     QString user = doc.object().value("user").toString();
@@ -46,6 +59,10 @@ void Server::addNewUser(QJsonDocument &doc, QTcpSocket *socket)
     users->insert(user, info);
 }
 
+/*
+ * Внесение данных о сообщениях
+ * от удалённого сервера
+*/
 QList<QString> Server::changeSenderInMessages(QJsonArray &messages, const QString &user)
 {
     QList<QString> list;
@@ -62,6 +79,9 @@ QList<QString> Server::changeSenderInMessages(QJsonArray &messages, const QStrin
     return list;
 }
 
+/*
+ * Отправка исходящего сообщения клиенту
+*/
 void Server::sendMessage(QJsonDocument &doc)
 {
     QString user = doc.object().value("user").toString();
@@ -77,11 +97,17 @@ void Server::sendMessage(QJsonDocument &doc)
     }
 }
 
+/*
+ * Добавление входящего сообщения в базу данных
+*/
 void Server::addMsgToDatabase(const QString &user, const QString &msg)
 {
     (*users)[user]["messages"].append(msg);
 }
 
+/*
+ * Поиск сокета по имени пользователя
+*/
 QTcpSocket * Server::findSocket(QString name)
 {
     QTcpSocket * socket = nullptr;
@@ -94,12 +120,20 @@ QTcpSocket * Server::findSocket(QString name)
     return socket;
 }
 
+/*
+ * Установка имени пользователя из настроек приложения
+*/
 void Server::setData(const QString &user, const QString &ip)
 {
     localName = user;
     emit dataReady(user, ip);
 }
 
+/*
+ * Обработчик событий сокета.
+ * В зависимости от содержания JSON сообщения
+ * происходят те или иные действия.
+*/
 void Server::socketReady()
 {
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
@@ -119,6 +153,12 @@ void Server::socketReady()
     socket->disconnectFromHost();
 }
 
+/*
+ * Запрос от сервера клиенту на соединение
+ * с удалённым сервером.
+ * Позваляет добавить в контакты пользователя, который
+ * ищет собеседников по сети.
+*/
 void Server::connectWithServerReq(const QString &ip)
 {
     QString ans = "{" + head + ", " + "\"ip\":"
@@ -126,6 +166,9 @@ void Server::connectWithServerReq(const QString &ip)
     sockets[0]->write(ans.toUtf8());
 }
 
+/*
+ * Проверка JSON сообщения на правильность
+*/
 bool Server::isJsonValid(QJsonDocument &doc, QJsonParseError &docError)
 {
     if ((docError.errorString().toInt() == QJsonParseError::NoError)
@@ -136,6 +179,9 @@ bool Server::isJsonValid(QJsonDocument &doc, QJsonParseError &docError)
     return false;
 }
 
+/*
+ * Возвращяет список всех сообщений от пользователя
+*/
 QStringList Server::getMessagesFrom(const QString &user)
 {
     if (!users->contains(user)) {
@@ -147,6 +193,10 @@ QStringList Server::getMessagesFrom(const QString &user)
     return list;
 }
 
+/*
+ * Действия при отключении от
+ * сервера
+*/
 void Server::socketDisconnect()
 {
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());

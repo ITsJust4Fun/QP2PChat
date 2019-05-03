@@ -24,6 +24,9 @@ Chat::Chat(QWidget *parent) :
     connectAll();
 }
 
+/*
+ * Соединяет слоты с сигналами
+*/
 void Chat::connectAll()
 {
     QObject::connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
@@ -45,12 +48,19 @@ void Chat::connectAll()
 
 }
 
+
+/*
+ * Соединяет сокет с обработчиками данных
+*/
 void Chat::connectSocket(QTcpSocket *socket)
 {
     QObject::connect(socket, SIGNAL(readyRead()), this, SLOT(socketReady()));
     QObject::connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconnect()));
 }
 
+/*
+ * Соединение с сервером (временное, если сервер не ответит)
+*/
 void Chat::connectToServer(const QString &ip)
 {
     timeSockets.append(new QTcpSocket(this));
@@ -58,6 +68,12 @@ void Chat::connectToServer(const QString &ip)
     connectSocket(timeSockets.last());
 }
 
+/*
+ * Метод, который сканирет сеть,
+ * отправляя запросы на соединение.
+ * Если сервер ответит на запрос в нужном
+ * формате, то соединение установлено.
+*/
 void Chat::scan()
 {
     if (!isDataSet) {
@@ -76,6 +92,9 @@ void Chat::scan()
     timer->start();
 }
 
+/*
+ * Показ окна About
+*/
 void Chat::showAbout()
 {
     QMessageBox messageBox;
@@ -84,6 +103,10 @@ void Chat::showAbout()
     messageBox.setFixedSize(500,200);
 }
 
+/*
+ * Проверка ip. Если соединение уже установлено,
+ * то true, если нет, то false.
+*/
 bool Chat::isContainsConnection(const QString &ip)
 {
     for (auto i : sockets) {
@@ -94,6 +117,12 @@ bool Chat::isContainsConnection(const QString &ip)
     return false;
 }
 
+
+/*
+ * Отправление сообщения.
+ * Оно отправится связанному серверу
+ * для отправки на удалённый клиент.
+*/
 void Chat::sendMessage()
 {
     if (!isDataSet) {
@@ -122,6 +151,11 @@ void Chat::sendMessage()
     sockets[0]->write(ans.toUtf8());
 }
 
+/*
+ * Получение от связанного сервера списка
+ * сообщения с пользователем, при этом
+ * флаг непрочитанных сообщений снимается.
+*/
 void Chat::getMessages(QListWidgetItem *item)
 {
     removeUnreadMessagesFlag(item);
@@ -129,6 +163,11 @@ void Chat::getMessages(QListWidgetItem *item)
     ui->messageArea->setText(list.join("\n") + "\n");
 }
 
+/*
+ * Обработчик событий сокета.
+ * В зависимости от содержания JSON сообщения
+ * происходят те или иные действия.
+*/
 void Chat::socketReady()
 {
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
@@ -160,6 +199,11 @@ void Chat::socketReady()
     }
 }
 
+/*
+ * Возврящяет JSON сообщение при соединении с удалённым сервером.
+ * В этом ответе содержится список всех сообщений с конкретным
+ * пользователем.
+*/
 QString Chat::getInitAnswer(const QString &user)
 {
     QString answer = "{" + head + ", " + "\"user\":"
@@ -175,6 +219,12 @@ QString Chat::getInitAnswer(const QString &user)
     return answer;
 }
 
+/*
+ * При входящем сообщении.
+ * Либо устанавливается флаг(прибавляется к флагу) непрочитанных сообщений,
+ * либо вывод сообщения в область для сообщений, если диалог с отправителем
+ * открыт.
+*/
 void Chat::incomingMessage(const QString &user, const QString &msg)
 {
     if (ui->listWidget->currentItem()) {
@@ -187,6 +237,10 @@ void Chat::incomingMessage(const QString &user, const QString &msg)
     addUnreadMessage(userItem);
 }
 
+/*
+ * Прибавляет к флагу или устанавливает флаг
+ * непрочитанных сообщений.
+*/
 void Chat::addUnreadMessage(QListWidgetItem *item)
 {
     QString user = item->text();
@@ -203,6 +257,9 @@ void Chat::addUnreadMessage(QListWidgetItem *item)
     }
 }
 
+/*
+ * Убирает флаг непрочитанных сообщений
+*/
 void Chat::removeUnreadMessagesFlag(QListWidgetItem *item)
 {
     QString user = item->text();
@@ -212,6 +269,10 @@ void Chat::removeUnreadMessagesFlag(QListWidgetItem *item)
     }
 }
 
+/*
+ * Принамает данные пользователя
+ * из настроек
+*/
 void Chat::setData(const QString &user, const QString &ip)
 {
     addr = ip;
@@ -220,6 +281,10 @@ void Chat::setData(const QString &user, const QString &ip)
     isDataSet = true;
 }
 
+/*
+ * Проверка пользователя на наличие в
+ * списке диалогов
+*/
 bool Chat::isListWidgetContains(const QString &user)
 {
     if (ui->listWidget->findItems(user, Qt::MatchContains).size() != 0) {
@@ -228,6 +293,10 @@ bool Chat::isListWidgetContains(const QString &user)
     return false;
 }
 
+/*
+ * Действия при отключении от
+ * сервера
+*/
 void Chat::socketDisconnect()
 {
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
@@ -235,6 +304,11 @@ void Chat::socketDisconnect()
     socket->deleteLater();
 }
 
+/*
+ * Отчистка списка временных соедиенний.
+ * Если соединение было установленно, то
+ * оно не будет разорванно.
+*/
 void Chat::clearTimeSockets()
 {
     for (auto i : timeSockets) {
@@ -247,6 +321,10 @@ void Chat::clearTimeSockets()
     timer->stop();
 }
 
+/*
+ * Разрыв соединений при закрытии
+ * приложения
+*/
 void Chat::closeEvent (QCloseEvent *event)
 {
     for (auto i : sockets) {

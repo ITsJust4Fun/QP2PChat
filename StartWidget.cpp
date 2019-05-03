@@ -19,6 +19,12 @@ StartWidget::StartWidget(QWidget *parent) :
     QObject::connect(ui->pushButton, SIGNAL(pressed()), this, SLOT(okPressed()));
 }
 
+/*
+ * При нажатии на кнопку в меню
+ * элементы ввода блокируются, а данные
+ * отправляются на слоты (клиенту и серверу).
+ * Окно настроек закрывается
+*/
 void StartWidget::okPressed()
 {
     ui->boxIp->setEnabled(false);
