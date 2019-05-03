@@ -56,7 +56,7 @@ void Chat::scan()
         messageBox.setFixedSize(500,200);
         return;
     }
-    QString part = "192.168.0.";
+    QString part = addr.left(addr.lastIndexOf('.') + 1);
     for (int i = 0; i < 256; i++) {
         QString ip = part + QString::number(i);
         if (!isContainsConnection(ip)) {
