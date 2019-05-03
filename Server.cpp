@@ -12,6 +12,9 @@ void Server::startServer(quint16 port)
 
 void Server::incomingConnection(int socketDescriptor)
 {
+    if (localName == "") {
+        return;
+    }
     sockets.append(new QTcpSocket(this));
     QTcpSocket *socket = sockets.last();
     socket->setSocketDescriptor(socketDescriptor);
@@ -77,7 +80,7 @@ QTcpSocket * Server::findSocket(QString name)
 void Server::setData(const QString &user, const QString &ip)
 {
     localName = user;
-    Q_UNUSED(ip);
+    emit dataReady(user, ip);
 }
 
 void Server::socketReady()

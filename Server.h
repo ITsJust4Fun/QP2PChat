@@ -26,7 +26,7 @@ public:
     QJsonDocument doc;
     QJsonParseError docError;
     QMap<QString, QMap<QString, QList<QString>>> *users;
-    QString localName = "J4F";
+    QString localName = "";
 
 public slots:
     void startServer(quint16 port);
@@ -35,6 +35,9 @@ public slots:
     void socketDisconnect();
     void addMsgToDatabase(const QString &user, const QString &msg);
     void setData(const QString &user, const QString &ip);
+
+signals:
+    void dataReady(const QString &user, const QString &ip);
 };
 
 #endif // SERVER_H

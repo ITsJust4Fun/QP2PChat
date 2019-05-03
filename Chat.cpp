@@ -29,7 +29,7 @@ void Chat::connectAll()
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(clearTimeSockets()));
     QObject::connect(this, SIGNAL(messageReceived(const QString &, const QString &)), server,
                      SLOT(addMsgToDatabase(const QString &, const QString &)));
-    QObject::connect(startWidget, SIGNAL(dataReady(const QString &, const QString &)),
+    QObject::connect(server, SIGNAL(dataReady(const QString &, const QString &)),
                      this, SLOT(setData(const QString &, const QString &)));
     QObject::connect(startWidget, SIGNAL(dataReady(const QString &, const QString &)),
                      server, SLOT(setData(const QString &, const QString &)));
