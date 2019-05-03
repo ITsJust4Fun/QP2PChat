@@ -116,7 +116,7 @@ void Chat::socketReady()
             if (!sockets.contains(socket)) {
                 QString user = doc.object().value("user").toString();
                 this->user = user;
-                qDebug() << "added " + user;
+                ui->listWidget->addItem(new QListWidgetItem(user));
                 sockets.append(socket);
                 socket->write(QString("{" + head + ", " + "\"user\":"
                         + "\"" + localName + "\"}").toUtf8());
