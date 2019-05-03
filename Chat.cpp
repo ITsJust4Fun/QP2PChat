@@ -106,7 +106,9 @@ void Chat::sendMessage()
 
 void Chat::getMessages(QListWidgetItem *item)
 {
-    Q_UNUSED(item);
+    removeUnreadMessagesFlag(item);
+    QStringList list = server->getMessagesFrom(item->text());
+    ui->messageArea->setText(list.join(""));
 }
 
 void Chat::socketReady()
@@ -166,6 +168,15 @@ void Chat::addUnreadMessage(QListWidgetItem *item)
         item->setText(user.left(left) + '[' + QString::number(num) + ']');
     } else {
         item->setText(user + "[1]");
+    }
+}
+
+void Chat::removeUnreadMessagesFlag(QListWidgetItem *item)
+{
+    QString user = item->text();
+    if ((user.lastIndexOf('[') != -1)
+            && (user.lastIndexOf(']') != -1)) {
+        item->setText(user.left(user.lastIndexOf('[')));
     }
 }
 

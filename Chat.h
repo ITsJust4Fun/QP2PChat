@@ -27,6 +27,7 @@ public:
     void closeEvent (QCloseEvent *event);
     void incomingMessage(const QString &user, const QString &msg);
     void addUnreadMessage(QListWidgetItem *item);
+    void removeUnreadMessagesFlag(QListWidgetItem *item);
     bool isContainsConnection(const QString &ip);
     bool isListWidgetContains(const QString &user);
     ~Chat();

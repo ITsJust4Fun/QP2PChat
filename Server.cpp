@@ -119,6 +119,17 @@ bool Server::isJsonValid(QJsonDocument &doc, QJsonParseError &docError)
     return false;
 }
 
+QStringList Server::getMessagesFrom(const QString &user)
+{
+    if (!users->contains(user)) {
+        QStringList list;
+        return list;
+    }
+    QStringList list;
+    list.append((*users)[user]["messages"]);
+    return list;
+}
+
 void Server::socketDisconnect()
 {
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
