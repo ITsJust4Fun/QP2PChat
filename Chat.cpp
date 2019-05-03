@@ -5,6 +5,8 @@ Chat::Chat(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Chat)
 {
+    setWindowIcon(QIcon(":/icons/chat_icon.png"));
+
     timer = new QTimer();
     timer->setInterval(500);
     sockets.append(new QTcpSocket(this));
@@ -23,6 +25,7 @@ void Chat::connectAll()
 {
     QObject::connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
     QObject::connect(ui->actionScan, SIGNAL(triggered()), this, SLOT(scan()));
+    QObject::connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
     QObject::connect(ui->actionSettings, SIGNAL(triggered()), startWidget, SLOT(show()));
     connectSocket(sockets[0]);
     QObject::connect(ui->buttonSend, SIGNAL(pressed()), this, SLOT(sendMessage()));
@@ -67,6 +70,14 @@ void Chat::scan()
         }
     }
     timer->start();
+}
+
+void Chat::showAbout()
+{
+    QMessageBox messageBox;
+    messageBox.information(nullptr, "About",
+                           "QChat\nSite: https://github.com/ITsJust4Fun/QP2PChat\nOpen settings, enter info and chatting!");
+    messageBox.setFixedSize(500,200);
 }
 
 bool Chat::isContainsConnection(const QString &ip)
@@ -202,7 +213,6 @@ void Chat::setData(const QString &user, const QString &ip)
     addr = ip;
     localName = user;
     sockets[0]->connectToHost(addr, port);
-
     isDataSet = true;
 }
 

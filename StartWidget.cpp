@@ -5,6 +5,7 @@ StartWidget::StartWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::StartWidget)
 {
+    setWindowIcon(QIcon(":/icons/chat_icon.png"));
     ui->setupUi(this);
     QList<QHostAddress> list = QHostInfo::fromName(QHostInfo::localHostName()).addresses();
     for (auto i : list) {
@@ -14,6 +15,7 @@ StartWidget::StartWidget(QWidget *parent) :
         }
     }
     ui->boxIp->addItems(ipList);
+    ui->lineEditIp->setPlaceholderText("Fill if your ip is missing");
     QObject::connect(ui->pushButton, SIGNAL(pressed()), this, SLOT(okPressed()));
 }
 
@@ -22,7 +24,12 @@ void StartWidget::okPressed()
     ui->boxIp->setEnabled(false);
     ui->lineEditUser->setEnabled(false);
     ui->pushButton->setEnabled(false);
-    emit dataReady(ui->lineEditUser->text(), ui->boxIp->currentText());
+    ui->lineEditIp->setEnabled(false);
+    if (ui->lineEditIp->text() == "") {
+        emit dataReady(ui->lineEditUser->text(), ui->boxIp->currentText());
+    } else {
+        emit dataReady(ui->lineEditUser->text(), ui->lineEditIp->text());
+    }
     close();
 }
 

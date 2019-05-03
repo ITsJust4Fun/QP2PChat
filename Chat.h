@@ -55,6 +55,7 @@ public slots:
     void clearTimeSockets();
     void setData(const QString &user, const QString &ip);
     void getMessages(QListWidgetItem *item);
+    void showAbout();
 
 signals:
     void messageReceived(const QString &user, const QString &msg);

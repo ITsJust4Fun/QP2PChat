@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/scan.png</file>
+        <file>icons/settings.png</file>
+        <file>icons/about.png</file>
+        <file>icons/quit.png</file>
+        <file>icons/chat_icon.png</file>
+    </qresource>
+</RCC>
