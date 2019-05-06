@@ -5,7 +5,7 @@ StartWidget::StartWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::StartWidget)
 {
-    setWindowIcon(QIcon(":/icons/chat_icon.png"));
+    setWindowIcon(QIcon(":/icons/settings.png"));
     ui->setupUi(this);
     QList<QHostAddress> list = QHostInfo::fromName(QHostInfo::localHostName()).addresses();
     for (auto i : list) {

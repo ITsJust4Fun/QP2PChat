@@ -11,6 +11,7 @@
 
 #include "Server.h"
 #include "StartWidget.h"
+#include "AddForm.h"
 
 namespace Ui {
 class Chat;
@@ -46,6 +47,7 @@ public:
     QString localName;
     QTimer *timer;
     StartWidget *startWidget;
+    AddForm *addForm;
     QShortcut *sendMsg;
     bool isDataSet;
 
@@ -58,6 +60,7 @@ public slots:
     void setData(const QString &user, const QString &ip);
     void getMessages(QListWidgetItem *item);
     void showAbout();
+    void addUser(const QString &ip);
 
 signals:
     void messageReceived(const QString &user, const QString &msg);

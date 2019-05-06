@@ -19,6 +19,7 @@ Chat::Chat(QWidget *parent) :
     isDataSet = false;
 
     startWidget = new StartWidget();
+    addForm = new AddForm();
 
     ui->setupUi(this);
     connectAll();
@@ -30,19 +31,35 @@ Chat::Chat(QWidget *parent) :
 void Chat::connectAll()
 {
     QObject::connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
+
     QObject::connect(ui->actionScan, SIGNAL(triggered()), this, SLOT(scan()));
+
     QObject::connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
+
     QObject::connect(ui->actionSettings, SIGNAL(triggered()), startWidget, SLOT(show()));
+
+    QObject::connect(ui->actionAddUser, SIGNAL(triggered()), addForm, SLOT(show()));
+
     connectSocket(sockets[0]);
+
     QObject::connect(ui->buttonSend, SIGNAL(pressed()), this, SLOT(sendMessage()));
+
     QObject::connect(sendMsg, SIGNAL(activated()), this, SLOT(sendMessage()));
+
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(clearTimeSockets()));
+
     QObject::connect(this, SIGNAL(messageReceived(const QString &, const QString &)), server,
                      SLOT(addMsgToDatabase(const QString &, const QString &)));
+
     QObject::connect(server, SIGNAL(dataReady(const QString &, const QString &)),
                      this, SLOT(setData(const QString &, const QString &)));
+
     QObject::connect(startWidget, SIGNAL(dataReady(const QString &, const QString &)),
                      server, SLOT(setData(const QString &, const QString &)));
+
+    QObject::connect(addForm, SIGNAL(dataReady(const QString &)),
+                     this, SLOT(addUser(const QString &)));
+
     QObject::connect(ui->listWidget, SIGNAL(itemClicked(QListWidgetItem *)),
                      this, SLOT(getMessages(QListWidgetItem *)));
 
@@ -282,6 +299,24 @@ void Chat::setData(const QString &user, const QString &ip)
 }
 
 /*
+ * Пытается установить соединение
+ * с пользователем
+*/
+void Chat::addUser(const QString &ip)
+{
+    if (!isDataSet) {
+        QMessageBox messageBox;
+        messageBox.critical(nullptr, "Error", "Please set username and ip in settings");
+        messageBox.setFixedSize(500,200);
+        return;
+    }
+    if (!isContainsConnection(ip)) {
+        connectToServer(ip);
+    }
+    timer->start();
+}
+
+/*
  * Проверка пользователя на наличие в
  * списке диалогов
 */
@@ -339,5 +374,6 @@ Chat::~Chat()
     delete server;
     delete timer;
     delete startWidget;
+    delete addForm;
     delete sendMsg;
 }

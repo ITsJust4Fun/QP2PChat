@@ -25,17 +25,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    AddForm.cpp \
         main.cpp \
         Chat.cpp \
     Server.cpp \
     StartWidget.cpp
 
 HEADERS += \
+    AddForm.h \
         Chat.h \
     Server.h \
     StartWidget.h
 
 FORMS += \
+    AddForm.ui \
         Chat.ui \
     StartWidget.ui
 
