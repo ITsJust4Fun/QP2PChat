@@ -107,7 +107,8 @@ void Chat::connectUdpSocket()
 /*
  * Добавление пользователя,
  * который откликнулся на udp запрос
- * в список
+ * в список или отклик на
+ * широковещательный запрос
 */
 void Chat::readUdp()
 {
@@ -121,9 +122,16 @@ void Chat::readUdp()
                 && doc.object().value("ip") != QJsonValue::Undefined) {
             QString user = doc.object().value("user").toString();
             QString ip = doc.object().value("ip").toString();
-            if (user != localName && !isContainsConnection(ip)) {
-                udpAddrs.append(ip);
-                udpTimer->start();
+            if (doc.object().value("broadcast") != QJsonValue::Undefined) {
+                QByteArray data = QString("{" + head + ", " + "\"user\":"
+                                          + "\"" + localName + "\"" + ", " + "\"ip\":"
+                                          + "\"" + addr + "\"}").toUtf8();
+                udpSocketSender->writeDatagram(data, QHostAddress(ip), port);
+            } else {
+                if (user != localName && !isContainsConnection(ip)) {
+                    udpAddrs.append(ip);
+                    udpTimer->start();
+                }
             }
         }
     }
@@ -138,6 +146,7 @@ void Chat::addUdpUsers()
     for(auto i : udpAddrs) {
         addUser(i);
     }
+    udpAddrs.clear();
 }
 
 /*
@@ -156,7 +165,8 @@ void Chat::scan()
     }
     QByteArray data = QString("{" + head + ", " + "\"user\":"
                               + "\"" + localName + "\"" + ", " + "\"ip\":"
-                              + "\"" + addr + "\"}").toUtf8();
+                              + "\"" + addr + "\"" + ", " + "\"broadcast\":"
+                              + "\"" + "true" + "\"" + "}").toUtf8();
     udpSocketSender->writeDatagram(data, QHostAddress(broadcastIp), port);
 }
 
