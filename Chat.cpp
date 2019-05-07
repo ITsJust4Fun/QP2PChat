@@ -55,11 +55,11 @@ void Chat::connectAll()
     QObject::connect(this, SIGNAL(messageReceived(const QString &, const QString &)), server,
                      SLOT(addMsgToDatabase(const QString &, const QString &)));
 
-    QObject::connect(server, SIGNAL(dataReady(const QString &, const QString &)),
-                     this, SLOT(setData(const QString &, const QString &)));
+    QObject::connect(server, SIGNAL(dataReady(const QString &, const QString &, const QString &)),
+                     this, SLOT(setData(const QString &, const QString &, const QString &)));
 
-    QObject::connect(startWidget, SIGNAL(dataReady(const QString &, const QString &)),
-                     server, SLOT(setData(const QString &, const QString &)));
+    QObject::connect(startWidget, SIGNAL(dataReady(const QString &, const QString &, const QString &)),
+                     server, SLOT(setData(const QString &, const QString &, const QString &)));
 
     QObject::connect(addForm, SIGNAL(dataReady(const QString &)),
                      this, SLOT(addUser(const QString &)));
@@ -89,6 +89,9 @@ void Chat::connectToServer(const QString &ip)
     connectSocket(timeSockets.last());
 }
 
+/*
+ * Настройка udp сокетов
+*/
 void Chat::connectUdpSocket()
 {
     udpSocketReceiver->bind(QHostAddress::Any, port);
@@ -97,26 +100,22 @@ void Chat::connectUdpSocket()
     QObject::connect(udpSocketReceiver, SIGNAL(readyRead()), this, SLOT(readUdp()));
 }
 
+/*
+ * Добавление пользователя,
+ * который откликнулся на udp запрос
+*/
 void Chat::readUdp()
 {
-    QString ip = udpSocketReceiver->peerAddress().toString();
-    qDebug() << ip;
-    qDebug() << udpSocketReceiver->pendingDatagramSize();
-
     QByteArray data;
     data.resize(static_cast<int>(udpSocketReceiver->pendingDatagramSize()));
     udpSocketReceiver->readDatagram(data.data(), data.size());
     doc = QJsonDocument::fromJson(data, &docError);
 
-    qDebug() << data;
-
-    if (ip.isEmpty()) {
-        return;
-    }
-
     if (Server::isJsonValid(doc, docError)) {
-        if (doc.object().value("user") != QJsonValue::Undefined) {
+        if (doc.object().value("user") != QJsonValue::Undefined
+                && doc.object().value("ip") != QJsonValue::Undefined) {
             QString user = doc.object().value("user").toString();
+            QString ip = doc.object().value("ip").toString();
             if (user != localName) {
                 addUser(ip);
             }
@@ -125,7 +124,7 @@ void Chat::readUdp()
 }
 
 /*
- * Метод, который сканирет сеть,
+ * Метод, который сканирует сеть,
  * отправляя запросы на соединение.
  * Если сервер ответит на запрос в нужном
  * формате, то соединение установлено.
@@ -134,21 +133,36 @@ void Chat::scan()
 {
     if (!isDataSet) {
         QMessageBox messageBox;
-        messageBox.critical(nullptr, "Error", "Please set username and ip in settings");
+        messageBox.critical(nullptr, "Error", noDataErr);
         messageBox.setFixedSize(500,200);
         return;
     }
-    /*QString part = addr.left(addr.lastIndexOf('.') + 1);
-    for (int i = 0; i < 256; i++) {
-        QString ip = part + QString::number(i);
-        if (!isContainsConnection(ip)) {
-            connectToServer(ip);
-        }
-    }
-    timer->start();*/
     QByteArray data = QString("{" + head + ", " + "\"user\":"
-                              + "\"" + localName + "\"}").toUtf8();
-    udpSocketSender->writeDatagram(data, QHostAddress::Broadcast, port);
+                              + "\"" + localName + ", " + "\"ip\":"
+                              + "\"" + addr + "\"}").toUtf8();
+    udpSocketSender->writeDatagram(data, QHostAddress(broadcastIp), port);
+}
+
+/*
+ * Вычисление широковещательного ip
+*/
+QString Chat::calcBroadcastIp(const QString &ip, const QString &mask)
+{
+    QStringList addr = ip.split(".");
+    QStringList sMask = mask.split(".");
+    QStringList netAddr;
+    QStringList bIp;
+    for (int i = 0; i < addr.size(); i++) {
+        unsigned char byte = static_cast<unsigned char>(addr[i].toUInt())
+                    & static_cast<unsigned char>(sMask[i].toUInt());
+        netAddr << QString::number(byte);
+    }
+    for (int i = 0; i < netAddr.size(); i++) {
+        unsigned char byte = static_cast<unsigned char>(netAddr[i].toUInt())
+                    | ~static_cast<unsigned char>(sMask[i].toUInt());
+        bIp << QString::number(byte);
+    }
+    return bIp.join(".");
 }
 
 /*
@@ -186,13 +200,13 @@ void Chat::sendMessage()
 {
     if (!isDataSet) {
         QMessageBox messageBox;
-        messageBox.critical(nullptr, "Error", "Please set username and ip in settings!");
+        messageBox.critical(nullptr, "Error", noDataErr);
         messageBox.setFixedSize(500,200);
         return;
     }
     if (!ui->listWidget->currentItem()) {
         QMessageBox messageBox;
-        messageBox.critical(nullptr, "Error", "Please select user!");
+        messageBox.critical(nullptr, "Error", selectUserErr);
         messageBox.setFixedSize(500,200);
         return;
     }
@@ -332,10 +346,12 @@ void Chat::removeUnreadMessagesFlag(QListWidgetItem *item)
  * Принамает данные пользователя
  * из настроек
 */
-void Chat::setData(const QString &user, const QString &ip)
+void Chat::setData(const QString &user, const QString &ip, const QString &mask)
 {
     addr = ip;
     localName = user;
+    this->mask = mask;
+    broadcastIp = calcBroadcastIp(addr, mask);
     sockets[0]->connectToHost(addr, port);
     isDataSet = true;
 }
@@ -348,7 +364,7 @@ void Chat::addUser(const QString &ip)
 {
     if (!isDataSet) {
         QMessageBox messageBox;
-        messageBox.critical(nullptr, "Error", "Please set username and ip in settings");
+        messageBox.critical(nullptr, "Error", noDataErr);
         messageBox.setFixedSize(500,200);
         return;
     }

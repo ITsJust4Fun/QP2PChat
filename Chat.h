@@ -31,6 +31,7 @@ public:
     void incomingMessage(const QString &user, const QString &msg);
     void addUnreadMessage(QListWidgetItem *item);
     void removeUnreadMessagesFlag(QListWidgetItem *item);
+    static QString calcBroadcastIp(const QString &ip, const QString &mask);
     QString getInitAnswer(const QString &user);
     bool isContainsConnection(const QString &ip);
     bool isListWidgetContains(const QString &user);
@@ -46,6 +47,8 @@ public:
     QString head = "\"type\":\"p2p_connected\", \"status\":\"OK\"";
     quint16 port = 4444;
     QString addr;
+    QString mask;
+    QString broadcastIp;
     QString localName;
     QTimer *timer;
     StartWidget *startWidget;
@@ -53,6 +56,8 @@ public:
     QShortcut *sendMsg;
     QUdpSocket *udpSocketSender;
     QUdpSocket *udpSocketReceiver;
+    QString noDataErr = "Please set username, ip and mask in settings";
+    QString selectUserErr = "Please select user!";
     bool isDataSet;
 
 public slots:
@@ -61,7 +66,7 @@ public slots:
     void sendMessage();
     void scan();
     void clearTimeSockets();
-    void setData(const QString &user, const QString &ip);
+    void setData(const QString &user, const QString &ip, const QString &mask);
     void getMessages(QListWidgetItem *item);
     void showAbout();
     void addUser(const QString &ip);

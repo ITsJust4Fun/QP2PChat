@@ -37,10 +37,10 @@ public slots:
     void socketReady();
     void socketDisconnect();
     void addMsgToDatabase(const QString &user, const QString &msg);
-    void setData(const QString &user, const QString &ip);
+    void setData(const QString &user, const QString &ip, const QString &mask);
 
 signals:
-    void dataReady(const QString &user, const QString &ip);
+    void dataReady(const QString &user, const QString &ip, const QString &mask);
 };
 
 #endif // SERVER_H

@@ -123,10 +123,10 @@ QTcpSocket * Server::findSocket(QString name)
 /*
  * Установка имени пользователя из настроек приложения
 */
-void Server::setData(const QString &user, const QString &ip)
+void Server::setData(const QString &user, const QString &ip, const QString &mask)
 {
     localName = user;
-    emit dataReady(user, ip);
+    emit dataReady(user, ip, mask);
 }
 
 /*

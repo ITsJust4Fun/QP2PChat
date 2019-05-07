@@ -27,15 +27,20 @@ StartWidget::StartWidget(QWidget *parent) :
 */
 void StartWidget::okPressed()
 {
+    QString ip = ui->lineEditIp->text() == "" ? ui->boxIp->currentText() : ui->lineEditIp->text();
+    QString mask = ui->lineEditMask->text();
+    if (ip.count(".") != mask.count(".")) {
+        QMessageBox messageBox;
+        messageBox.critical(nullptr, "Error", "Mask or ip error format!");
+        messageBox.setFixedSize(500,200);
+        return;
+    }
     ui->boxIp->setEnabled(false);
     ui->lineEditUser->setEnabled(false);
     ui->pushButton->setEnabled(false);
     ui->lineEditIp->setEnabled(false);
-    if (ui->lineEditIp->text() == "") {
-        emit dataReady(ui->lineEditUser->text(), ui->boxIp->currentText());
-    } else {
-        emit dataReady(ui->lineEditUser->text(), ui->lineEditIp->text());
-    }
+    ui->lineEditMask->setEnabled(false);
+    emit dataReady(ui->lineEditUser->text(), ip, mask);
     close();
 }
 
