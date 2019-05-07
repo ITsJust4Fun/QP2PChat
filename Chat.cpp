@@ -138,7 +138,7 @@ void Chat::scan()
         return;
     }
     QByteArray data = QString("{" + head + ", " + "\"user\":"
-                              + "\"" + localName + ", " + "\"ip\":"
+                              + "\"" + localName + "\"" + ", " + "\"ip\":"
                               + "\"" + addr + "\"}").toUtf8();
     udpSocketSender->writeDatagram(data, QHostAddress(broadcastIp), port);
 }
