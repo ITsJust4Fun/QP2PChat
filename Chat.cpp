@@ -12,6 +12,8 @@ Chat::Chat(QWidget *parent) :
 
     timer = new QTimer();
     timer->setInterval(500);
+    udpTimer = new QTimer();
+    udpTimer->setInterval(1000);
     sockets.append(new QTcpSocket(this));
 
     server = new Server();
@@ -52,6 +54,8 @@ void Chat::connectAll()
 
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(clearTimeSockets()));
 
+    QObject::connect(udpTimer, SIGNAL(timeout()), this, SLOT(addUdpUsers()));
+
     QObject::connect(this, SIGNAL(messageReceived(const QString &, const QString &)), server,
                      SLOT(addMsgToDatabase(const QString &, const QString &)));
 
@@ -87,7 +91,6 @@ void Chat::connectToServer(const QString &ip)
     timeSockets.append(new QTcpSocket(this));
     timeSockets.last()->connectToHost(ip, port);
     connectSocket(timeSockets.last());
-    timer->start();
 }
 
 /*
@@ -104,6 +107,7 @@ void Chat::connectUdpSocket()
 /*
  * Добавление пользователя,
  * который откликнулся на udp запрос
+ * в список
 */
 void Chat::readUdp()
 {
@@ -118,9 +122,21 @@ void Chat::readUdp()
             QString user = doc.object().value("user").toString();
             QString ip = doc.object().value("ip").toString();
             if (user != localName && !isContainsConnection(ip)) {
-                addUser(ip);
+                udpAddrs.append(ip);
+                udpTimer->start();
             }
         }
+    }
+}
+
+/*
+ * Попытка соединится с откликнувшимися
+ * пользователями
+*/
+void Chat::addUdpUsers()
+{
+    for(auto i : udpAddrs) {
+        addUser(i);
     }
 }
 
@@ -371,6 +387,7 @@ void Chat::addUser(const QString &ip)
     }
     if (!isContainsConnection(ip)) {
         connectToServer(ip);
+        timer->start();
     }
 }
 

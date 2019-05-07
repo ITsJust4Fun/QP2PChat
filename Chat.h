@@ -40,6 +40,7 @@ public:
 
     QList<QTcpSocket *> sockets;
     QList<QTcpSocket *> timeSockets;
+    QList<QString> udpAddrs;
     QByteArray data;
     Server *server;
     QJsonDocument doc;
@@ -51,6 +52,7 @@ public:
     QString broadcastIp;
     QString localName;
     QTimer *timer;
+    QTimer *udpTimer;
     StartWidget *startWidget;
     AddForm *addForm;
     QShortcut *sendMsg;
@@ -71,6 +73,7 @@ public slots:
     void showAbout();
     void addUser(const QString &ip);
     void readUdp();
+    void addUdpUsers();
 
 signals:
     void messageReceived(const QString &user, const QString &msg);
