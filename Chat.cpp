@@ -91,7 +91,7 @@ void Chat::connectToServer(const QString &ip)
 
 void Chat::connectUdpSocket()
 {
-    udpSocketSender->bind(QHostAddress::Any, port);
+    udpSocketReceiver->bind(QHostAddress::Any, port);
     udpSocketSender->open(QIODevice::WriteOnly);
     udpSocketReceiver->open(QIODevice::ReadOnly);
     QObject::connect(udpSocketReceiver, SIGNAL(readyRead()), this, SLOT(readUdp()));
