@@ -87,6 +87,7 @@ void Chat::connectToServer(const QString &ip)
     timeSockets.append(new QTcpSocket(this));
     timeSockets.last()->connectToHost(ip, port);
     connectSocket(timeSockets.last());
+    timer->start();
 }
 
 /*
@@ -116,7 +117,7 @@ void Chat::readUdp()
                 && doc.object().value("ip") != QJsonValue::Undefined) {
             QString user = doc.object().value("user").toString();
             QString ip = doc.object().value("ip").toString();
-            if (user != localName) {
+            if (user != localName && !isContainsConnection(ip)) {
                 addUser(ip);
             }
         }
@@ -371,7 +372,6 @@ void Chat::addUser(const QString &ip)
     if (!isContainsConnection(ip)) {
         connectToServer(ip);
     }
-    timer->start();
 }
 
 /*
