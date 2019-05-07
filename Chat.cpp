@@ -21,6 +21,9 @@ Chat::Chat(QWidget *parent) :
     startWidget = new StartWidget();
     addForm = new AddForm();
 
+    udpSocket = new QUdpSocket(this);
+    connectUdpSocket();
+
     ui->setupUi(this);
     connectAll();
 }
@@ -85,6 +88,40 @@ void Chat::connectToServer(const QString &ip)
     connectSocket(timeSockets.last());
 }
 
+void Chat::connectUdpSocket()
+{
+    udpSocket->bind(QHostAddress::Any, port);
+    udpSocket->open(QIODevice::ReadWrite);
+    QObject::connect(udpSocket, SIGNAL(readyRead()), this, SLOT(readUdp()));
+}
+
+void Chat::readUdp()
+{
+    QString ip = udpSocket->peerAddress().toString();
+    qDebug() << ip;
+    qDebug() << udpSocket->pendingDatagramSize();
+
+    QByteArray data;
+    data.resize(static_cast<int>(udpSocket->pendingDatagramSize()));
+    udpSocket->readDatagram(data.data(), data.size());
+    doc = QJsonDocument::fromJson(data, &docError);
+
+    qDebug() << data;
+
+    if (ip.isEmpty()) {
+        return;
+    }
+
+    if (Server::isJsonValid(doc, docError)) {
+        if (doc.object().value("user") != QJsonValue::Undefined) {
+            QString user = doc.object().value("user").toString();
+            if (user != localName) {
+                addUser(ip);
+            }
+        }
+    }
+}
+
 /*
  * Метод, который сканирет сеть,
  * отправляя запросы на соединение.
@@ -99,14 +136,17 @@ void Chat::scan()
         messageBox.setFixedSize(500,200);
         return;
     }
-    QString part = addr.left(addr.lastIndexOf('.') + 1);
+    /*QString part = addr.left(addr.lastIndexOf('.') + 1);
     for (int i = 0; i < 256; i++) {
         QString ip = part + QString::number(i);
         if (!isContainsConnection(ip)) {
             connectToServer(ip);
         }
     }
-    timer->start();
+    timer->start();*/
+    QByteArray data = QString("{" + head + ", " + "\"user\":"
+                              + "\"" + localName + "\"}").toUtf8();
+    udpSocket->writeDatagram(data, QHostAddress::Broadcast, port);
 }
 
 /*
@@ -376,4 +416,5 @@ Chat::~Chat()
     delete startWidget;
     delete addForm;
     delete sendMsg;
+    delete udpSocket;
 }

@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QListWidgetItem>
 #include <QShortcut>
+#include <QUdpSocket>
 
 #include "Server.h"
 #include "StartWidget.h"
@@ -33,6 +34,7 @@ public:
     QString getInitAnswer(const QString &user);
     bool isContainsConnection(const QString &ip);
     bool isListWidgetContains(const QString &user);
+    void connectUdpSocket();
     ~Chat();
 
     QList<QTcpSocket *> sockets;
@@ -49,6 +51,7 @@ public:
     StartWidget *startWidget;
     AddForm *addForm;
     QShortcut *sendMsg;
+    QUdpSocket *udpSocket;
     bool isDataSet;
 
 public slots:
@@ -61,6 +64,7 @@ public slots:
     void getMessages(QListWidgetItem *item);
     void showAbout();
     void addUser(const QString &ip);
+    void readUdp();
 
 signals:
     void messageReceived(const QString &user, const QString &msg);
