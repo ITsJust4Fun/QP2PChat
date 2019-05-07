@@ -21,7 +21,8 @@ Chat::Chat(QWidget *parent) :
     startWidget = new StartWidget();
     addForm = new AddForm();
 
-    udpSocket = new QUdpSocket(this);
+    udpSocketSender = new QUdpSocket(this);
+    udpSocketReceiver = new QUdpSocket(this);
     connectUdpSocket();
 
     ui->setupUi(this);
@@ -90,20 +91,21 @@ void Chat::connectToServer(const QString &ip)
 
 void Chat::connectUdpSocket()
 {
-    udpSocket->bind(QHostAddress::Any, port);
-    udpSocket->open(QIODevice::ReadWrite);
-    QObject::connect(udpSocket, SIGNAL(readyRead()), this, SLOT(readUdp()));
+    udpSocketSender->bind(QHostAddress::Any, port);
+    udpSocketSender->open(QIODevice::WriteOnly);
+    udpSocketReceiver->open(QIODevice::ReadOnly);
+    QObject::connect(udpSocketReceiver, SIGNAL(readyRead()), this, SLOT(readUdp()));
 }
 
 void Chat::readUdp()
 {
-    QString ip = udpSocket->peerAddress().toString();
+    QString ip = udpSocketReceiver->peerAddress().toString();
     qDebug() << ip;
-    qDebug() << udpSocket->pendingDatagramSize();
+    qDebug() << udpSocketReceiver->pendingDatagramSize();
 
     QByteArray data;
-    data.resize(static_cast<int>(udpSocket->pendingDatagramSize()));
-    udpSocket->readDatagram(data.data(), data.size());
+    data.resize(static_cast<int>(udpSocketReceiver->pendingDatagramSize()));
+    udpSocketReceiver->readDatagram(data.data(), data.size());
     doc = QJsonDocument::fromJson(data, &docError);
 
     qDebug() << data;
@@ -146,7 +148,7 @@ void Chat::scan()
     timer->start();*/
     QByteArray data = QString("{" + head + ", " + "\"user\":"
                               + "\"" + localName + "\"}").toUtf8();
-    udpSocket->writeDatagram(data, QHostAddress::Broadcast, port);
+    udpSocketSender->writeDatagram(data, QHostAddress::Broadcast, port);
 }
 
 /*
@@ -416,5 +418,6 @@ Chat::~Chat()
     delete startWidget;
     delete addForm;
     delete sendMsg;
-    delete udpSocket;
+    delete udpSocketSender;
+    delete udpSocketReceiver;
 }

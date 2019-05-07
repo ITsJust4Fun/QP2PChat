@@ -51,7 +51,8 @@ public:
     StartWidget *startWidget;
     AddForm *addForm;
     QShortcut *sendMsg;
-    QUdpSocket *udpSocket;
+    QUdpSocket *udpSocketSender;
+    QUdpSocket *udpSocketReceiver;
     bool isDataSet;
 
 public slots:
