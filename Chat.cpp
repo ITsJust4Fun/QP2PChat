@@ -147,6 +147,7 @@ void Chat::addUdpUsers()
         addUser(i);
     }
     udpAddrs.clear();
+    udpTimer->stop();
 }
 
 /*
@@ -458,6 +459,7 @@ Chat::~Chat()
     delete ui;
     delete server;
     delete timer;
+    delete udpTimer;
     delete startWidget;
     delete addForm;
     delete sendMsg;
