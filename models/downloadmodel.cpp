@@ -99,14 +99,27 @@ int DownloadModel::columnCount(const QModelIndex &parent) const
         return rootItem->columnCount();
 }
 
-void DownloadModel::appendUser(QString &user)
+void DownloadModel::appendUser(const QString &user)
 {
     QList<QVariant> userData;
-    userData << user << "";
-    rootItem->appendChild(new DownloadItem(userData));
+    userData << user << 100;
+    rootItem->appendChild(new DownloadItem(userData, rootItem));
 }
 
-void DownloadModel::appendDownload(QString &user, QString &path)
+void DownloadModel::appendDownload(const QString &user, const QString &path)
 {
+    DownloadItem *name = nullptr;
+    for (int i = 0; i < rootItem->childCount(); i++) {
+        if (rootItem->child(i)->data(DownloadItem::NameColumn) == user) {
+            name = rootItem->child(i);
+        }
+    }
 
+    if (name) {
+        QList<QVariant> download;
+        download << path.mid(path.lastIndexOf("/") + 1) << 0;
+        DownloadItem *item = new DownloadItem(download, name);
+        item->setPath(path);
+        name->appendChild(item);
+    }
 }

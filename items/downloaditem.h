@@ -17,11 +17,22 @@ public:
     QVariant data(int column) const;
     int row() const;
     DownloadItem *parentItem();
+    void updateProgress();
+    void setProgress(int progress);
+    void setPath(const QString &path);
+    QString getPath() const;
+
+    enum columns
+    {
+        NameColumn,
+        ProgressColumn
+    };
 
 private:
     QList<DownloadItem *> m_childItems;
     QList<QVariant> m_itemData;
     DownloadItem *m_parentItem;
+    QString path;
 };
 
 #endif // DOWNLOADITEM_H

@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include "models/downloadmodel.h"
+#include "progressdelegate.h"
 
 namespace Ui {
 class DownloadManager;
@@ -16,11 +17,13 @@ class DownloadManager : public QWidget
 public:
     explicit DownloadManager(QWidget *parent = nullptr);
     virtual ~DownloadManager();
-    void appendUser(QString &user);
+    void appendUser(const QString &user);
+    void appendDownload(const QString &user, const QString &path);
 
 private:
     Ui::DownloadManager *ui;
     DownloadModel *downloadModel;
+    ProgressDelegate *progressDelegate;
 };
 
 #endif // DOWNLOADMANAGERDIALOG_H

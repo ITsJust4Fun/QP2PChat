@@ -8,8 +8,9 @@ DownloadManager::DownloadManager(QWidget *parent) :
     ui->setupUi(this);
 
     downloadModel = new DownloadModel(this);
+    progressDelegate = new ProgressDelegate(this);
     ui->treeView->setModel(downloadModel);
-    ui->treeView->setRootIsDecorated(false);
+    ui->treeView->setItemDelegate(progressDelegate);
 }
 
 DownloadManager::~DownloadManager()
@@ -17,7 +18,12 @@ DownloadManager::~DownloadManager()
     delete ui;
 }
 
-void DownloadManager::appendUser(QString &user)
+void DownloadManager::appendUser(const QString &user)
 {
     downloadModel->appendUser(user);
+}
+
+void DownloadManager::appendDownload(const QString &user, const QString &path)
+{
+    downloadModel->appendDownload(user, path);
 }

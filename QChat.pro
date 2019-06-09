@@ -32,7 +32,8 @@ SOURCES += \
         main.cpp \
         Chat.cpp \
     Server.cpp \
-    Settings.cpp
+    Settings.cpp \
+    progressdelegate.cpp
 
 HEADERS += \
     AddForm.h \
@@ -41,7 +42,8 @@ HEADERS += \
     Settings.h \
     downloadmanager.h \
     items/downloaditem.h \
-    models/downloadmodel.h
+    models/downloadmodel.h \
+    progressdelegate.h
 
 FORMS += \
     AddForm.ui \

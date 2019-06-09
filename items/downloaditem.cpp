@@ -14,6 +14,7 @@ DownloadItem::~DownloadItem()
 void DownloadItem::appendChild(DownloadItem *child)
 {
      m_childItems.append(child);
+     updateProgress();
 }
 
 DownloadItem *DownloadItem::child(int row)
@@ -47,4 +48,32 @@ int DownloadItem::row() const
 DownloadItem *DownloadItem::parentItem()
 {
     return m_parentItem;
+}
+
+void DownloadItem::setPath(const QString &path)
+{
+    this->path = path;
+}
+
+QString DownloadItem::getPath() const
+{
+    return path;
+}
+
+void DownloadItem::setProgress(int progress)
+{
+    m_itemData[ProgressColumn] = progress;
+    m_parentItem->updateProgress();
+}
+
+void DownloadItem::updateProgress()
+{
+    double totalProgress = 0;
+    for (auto item : m_childItems) {
+        totalProgress += item->data(ProgressColumn).toInt();
+    }
+    if (m_childItems.count() > 0) {
+        int progress = qRound(totalProgress / m_childItems.count());
+        m_itemData[ProgressColumn] = progress;
+    }
 }
