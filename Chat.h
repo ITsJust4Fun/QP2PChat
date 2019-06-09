@@ -9,6 +9,7 @@
 #include <QListWidgetItem>
 #include <QShortcut>
 #include <QUdpSocket>
+#include <QScrollBar>
 
 #include "Server.h"
 #include "Settings.h"
@@ -37,6 +38,7 @@ public:
     bool isContainsConnection(const QString &ip);
     bool isListWidgetContains(const QString &user);
     void connectUdpSocket();
+    void scrollToBottom();
     ~Chat();
 
     QList<QTcpSocket *> sockets;

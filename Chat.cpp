@@ -241,10 +241,11 @@ void Chat::sendMessage()
     QString user = ui->listWidget->currentItem()->text();
     QString msg = ui->messageEdit->toPlainText();
     ui->messageEdit->clear();
-    if (ui->messageArea->toPlainText() == "\n") {
+    /*if (ui->messageArea->toPlainText() == "\n") {
         ui->messageArea->clear();
-    }
-    ui->messageArea->setText(ui->messageArea->toPlainText() + msg + "\n");
+    }*/
+    ui->messageArea->append(msg);
+    scrollToBottom();
     QString ans = "{" + head + ", " + "\"user\":"
             + "\"" + user + "\", "
             + "\"message\":"
@@ -261,7 +262,8 @@ void Chat::getMessages(QListWidgetItem *item)
 {
     removeUnreadMessagesFlag(item);
     QStringList list = server->getMessagesFrom(item->text());
-    ui->messageArea->setText(list.join("\n") + "\n");
+    ui->messageArea->setText(list.join("\n"));
+    scrollToBottom();
 }
 
 /*
@@ -330,7 +332,12 @@ void Chat::incomingMessage(const QString &user, const QString &msg)
 {
     if (ui->listWidget->currentItem()) {
         if (ui->listWidget->currentItem()->text() == user) {
-            ui->messageArea->setText(ui->messageArea->toPlainText() + msg + "\n");
+            QScrollBar *scrollBar = ui->messageArea->verticalScrollBar();
+            bool isScrollToBottomNeeded = scrollBar->maximum() == scrollBar->value();
+            ui->messageArea->append(msg);
+            if (isScrollToBottomNeeded) {
+                scrollToBottom();
+            }
             return;
         }
     }
@@ -452,6 +459,16 @@ void Chat::closeEvent (QCloseEvent *event)
         i->disconnectFromHost();
     }
     event->accept();
+}
+
+/*
+ * Проматывает поле сообщений
+ * до конца вниз
+*/
+void Chat::scrollToBottom()
+{
+    QScrollBar *scrollBar = ui->messageArea->verticalScrollBar();
+    scrollBar->setValue(scrollBar->maximum());
 }
 
 Chat::~Chat()
