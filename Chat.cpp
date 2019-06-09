@@ -241,9 +241,6 @@ void Chat::sendMessage()
     QString user = ui->listWidget->currentItem()->text();
     QString msg = ui->messageEdit->toPlainText();
     ui->messageEdit->clear();
-    /*if (ui->messageArea->toPlainText() == "\n") {
-        ui->messageArea->clear();
-    }*/
     ui->messageArea->append(msg);
     scrollToBottom();
     QString ans = "{" + head + ", " + "\"user\":"
