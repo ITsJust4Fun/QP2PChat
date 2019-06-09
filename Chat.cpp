@@ -20,7 +20,7 @@ Chat::Chat(QWidget *parent) :
     server->startServer(port);
     isDataSet = false;
 
-    startWidget = new StartWidget();
+    settings = new Settings();
     addForm = new AddForm();
 
     udpSocketSender = new QUdpSocket(this);
@@ -42,7 +42,7 @@ void Chat::connectAll()
 
     QObject::connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
 
-    QObject::connect(ui->actionSettings, SIGNAL(triggered()), startWidget, SLOT(show()));
+    QObject::connect(ui->actionSettings, SIGNAL(triggered()), settings, SLOT(show()));
 
     QObject::connect(ui->actionAddUser, SIGNAL(triggered()), addForm, SLOT(show()));
 
@@ -62,7 +62,7 @@ void Chat::connectAll()
     QObject::connect(server, SIGNAL(dataReady(const QString &, const QString &, const QString &)),
                      this, SLOT(setData(const QString &, const QString &, const QString &)));
 
-    QObject::connect(startWidget, SIGNAL(dataReady(const QString &, const QString &, const QString &)),
+    QObject::connect(settings, SIGNAL(dataReady(const QString &, const QString &, const QString &)),
                      server, SLOT(setData(const QString &, const QString &, const QString &)));
 
     QObject::connect(addForm, SIGNAL(dataReady(const QString &)),
@@ -460,7 +460,7 @@ Chat::~Chat()
     delete server;
     delete timer;
     delete udpTimer;
-    delete startWidget;
+    delete settings;
     delete addForm;
     delete sendMsg;
     delete udpSocketSender;

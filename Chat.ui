@@ -82,6 +82,7 @@
     </property>
     <addaction name="actionScan"/>
     <addaction name="actionAddUser"/>
+    <addaction name="actionDownloads"/>
     <addaction name="actionSettings"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -106,6 +107,7 @@
    </attribute>
    <addaction name="actionScan"/>
    <addaction name="actionAddUser"/>
+   <addaction name="actionDownloads"/>
    <addaction name="actionSettings"/>
    <addaction name="actionAbout"/>
   </widget>
@@ -155,6 +157,15 @@
    </property>
    <property name="text">
     <string>Add User</string>
+   </property>
+  </action>
+  <action name="actionDownloads">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/download.png</normaloff>:/icons/download.png</iconset>
+   </property>
+   <property name="text">
+    <string>Download Manager</string>
    </property>
   </action>
  </widget>

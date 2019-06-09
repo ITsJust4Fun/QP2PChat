@@ -11,8 +11,9 @@
 #include <QUdpSocket>
 
 #include "Server.h"
-#include "StartWidget.h"
+#include "Settings.h"
 #include "AddForm.h"
+#include "downloadmanager.h"
 
 namespace Ui {
 class Chat;
@@ -53,8 +54,9 @@ public:
     QString localName;
     QTimer *timer;
     QTimer *udpTimer;
-    StartWidget *startWidget;
+    Settings *settings;
     AddForm *addForm;
+    DownloadManager *downloadManager;
     QShortcut *sendMsg;
     QUdpSocket *udpSocketSender;
     QUdpSocket *udpSocketReceiver;

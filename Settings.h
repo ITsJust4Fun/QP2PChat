@@ -6,16 +6,16 @@
 #include <QMessageBox>
 
 namespace Ui {
-class StartWidget;
+class Settings;
 }
 
-class StartWidget : public QWidget
+class Settings : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit StartWidget(QWidget *parent = nullptr);
-    ~StartWidget();
+    explicit Settings(QWidget *parent = nullptr);
+    ~Settings();
 
 public slots:
     void okPressed();
@@ -25,7 +25,7 @@ signals:
 
 private:
     QStringList ipList;
-    Ui::StartWidget *ui;
+    Ui::Settings *ui;
 };
 
 #endif // STARTWIDGET_H

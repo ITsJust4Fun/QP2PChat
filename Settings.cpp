@@ -1,9 +1,9 @@
-#include "StartWidget.h"
-#include "ui_StartWidget.h"
+#include "Settings.h"
+#include "ui_Settings.h"
 
-StartWidget::StartWidget(QWidget *parent) :
+Settings::Settings(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::StartWidget)
+    ui(new Ui::Settings)
 {
     setWindowIcon(QIcon(":/icons/settings.png"));
     ui->setupUi(this);
@@ -25,7 +25,7 @@ StartWidget::StartWidget(QWidget *parent) :
  * отправляются на слоты (клиенту и серверу).
  * Окно настроек закрывается
 */
-void StartWidget::okPressed()
+void Settings::okPressed()
 {
     QString ip = ui->lineEditIp->text() == "" ? ui->boxIp->currentText() : ui->lineEditIp->text();
     QString mask = ui->lineEditMask->text();
@@ -44,7 +44,7 @@ void StartWidget::okPressed()
     close();
 }
 
-StartWidget::~StartWidget()
+Settings::~Settings()
 {
     delete ui;
 }

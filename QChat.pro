@@ -26,21 +26,24 @@ CONFIG += c++11
 
 SOURCES += \
     AddForm.cpp \
+    downloadmanager.cpp \
         main.cpp \
         Chat.cpp \
     Server.cpp \
-    StartWidget.cpp
+    Settings.cpp
 
 HEADERS += \
     AddForm.h \
         Chat.h \
     Server.h \
-    StartWidget.h
+    Settings.h \
+    downloadmanager.h
 
 FORMS += \
     AddForm.ui \
         Chat.ui \
-    StartWidget.ui
+    Settings.ui \
+    downloadmanager.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
