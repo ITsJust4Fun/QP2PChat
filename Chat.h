@@ -44,7 +44,6 @@ public:
     QList<QTcpSocket *> sockets;
     QList<QTcpSocket *> timeSockets;
     QList<QString> udpAddrs;
-    QByteArray data;
     Server *server;
     QJsonDocument doc;
     QJsonParseError docError;

@@ -22,6 +22,7 @@ Chat::Chat(QWidget *parent) :
 
     settings = new Settings();
     addForm = new AddForm();
+    downloadManager = new DownloadManager();
 
     udpSocketSender = new QUdpSocket(this);
     udpSocketReceiver = new QUdpSocket(this);
@@ -31,45 +32,48 @@ Chat::Chat(QWidget *parent) :
     connectAll();
 }
 
+Chat::~Chat()
+{
+    delete ui;
+    delete server;
+    delete timer;
+    delete udpTimer;
+    delete settings;
+    delete addForm;
+    delete downloadManager;
+    delete sendMsg;
+    delete udpSocketSender;
+    delete udpSocketReceiver;
+}
+
 /*
  * Соединяет слоты с сигналами
 */
 void Chat::connectAll()
 {
-    QObject::connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
-
-    QObject::connect(ui->actionScan, SIGNAL(triggered()), this, SLOT(scan()));
-
-    QObject::connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
-
-    QObject::connect(ui->actionSettings, SIGNAL(triggered()), settings, SLOT(show()));
-
-    QObject::connect(ui->actionAddUser, SIGNAL(triggered()), addForm, SLOT(show()));
+    connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
+    connect(ui->actionScan, SIGNAL(triggered()), this, SLOT(scan()));
+    connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
+    connect(ui->actionSettings, SIGNAL(triggered()), settings, SLOT(show()));
+    connect(ui->actionAddUser, SIGNAL(triggered()), addForm, SLOT(show()));
+    connect(ui->actionDownloads, SIGNAL(triggered()), downloadManager, SLOT(show()));
 
     connectSocket(sockets[0]);
 
-    QObject::connect(ui->buttonSend, SIGNAL(pressed()), this, SLOT(sendMessage()));
-
-    QObject::connect(sendMsg, SIGNAL(activated()), this, SLOT(sendMessage()));
-
-    QObject::connect(timer, SIGNAL(timeout()), this, SLOT(clearTimeSockets()));
-
-    QObject::connect(udpTimer, SIGNAL(timeout()), this, SLOT(addUdpUsers()));
-
-    QObject::connect(this, SIGNAL(messageReceived(const QString &, const QString &)), server,
-                     SLOT(addMsgToDatabase(const QString &, const QString &)));
-
-    QObject::connect(server, SIGNAL(dataReady(const QString &, const QString &, const QString &)),
-                     this, SLOT(setData(const QString &, const QString &, const QString &)));
-
-    QObject::connect(settings, SIGNAL(dataReady(const QString &, const QString &, const QString &)),
-                     server, SLOT(setData(const QString &, const QString &, const QString &)));
-
-    QObject::connect(addForm, SIGNAL(dataReady(const QString &)),
-                     this, SLOT(addUser(const QString &)));
-
-    QObject::connect(ui->listWidget, SIGNAL(itemClicked(QListWidgetItem *)),
-                     this, SLOT(getMessages(QListWidgetItem *)));
+    connect(ui->buttonSend, SIGNAL(pressed()), this, SLOT(sendMessage()));
+    connect(sendMsg, SIGNAL(activated()), this, SLOT(sendMessage()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(clearTimeSockets()));
+    connect(udpTimer, SIGNAL(timeout()), this, SLOT(addUdpUsers()));
+    connect(this, SIGNAL(messageReceived(const QString &, const QString &)), server,
+            SLOT(addMsgToDatabase(const QString &, const QString &)));
+    connect(server, SIGNAL(dataReady(const QString &, const QString &, const QString &)),
+            this, SLOT(setData(const QString &, const QString &, const QString &)));
+    connect(settings, SIGNAL(dataReady(const QString &, const QString &, const QString &)),
+            server, SLOT(setData(const QString &, const QString &, const QString &)));
+    connect(addForm, SIGNAL(dataReady(const QString &)),
+            this, SLOT(addUser(const QString &)));
+    connect(ui->listWidget, SIGNAL(itemClicked(QListWidgetItem *)),
+            this, SLOT(getMessages(QListWidgetItem *)));
 
 }
 
@@ -79,8 +83,8 @@ void Chat::connectAll()
 */
 void Chat::connectSocket(QTcpSocket *socket)
 {
-    QObject::connect(socket, SIGNAL(readyRead()), this, SLOT(socketReady()));
-    QObject::connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconnect()));
+    connect(socket, SIGNAL(readyRead()), this, SLOT(socketReady()));
+    connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconnect()));
 }
 
 /*
@@ -101,7 +105,7 @@ void Chat::connectUdpSocket()
     udpSocketReceiver->bind(QHostAddress::Any, port);
     udpSocketSender->open(QIODevice::WriteOnly);
     udpSocketReceiver->open(QIODevice::ReadOnly);
-    QObject::connect(udpSocketReceiver, SIGNAL(readyRead()), this, SLOT(readUdp()));
+    connect(udpSocketReceiver, SIGNAL(readyRead()), this, SLOT(readUdp()));
 }
 
 /*
@@ -271,7 +275,7 @@ void Chat::getMessages(QListWidgetItem *item)
 void Chat::socketReady()
 {
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
-    data = socket->readAll();
+    QByteArray data = socket->readAll();
     doc = QJsonDocument::fromJson(data, &docError);
 
     if (Server::isJsonValid(doc, docError)) {
@@ -291,6 +295,7 @@ void Chat::socketReady()
                 QString user = doc.object().value("user").toString();
                 if (!isListWidgetContains(user)) {
                     ui->listWidget->addItem(new QListWidgetItem(user));
+                    downloadManager->appendUser(user);
                 }
                 sockets.append(socket);
                 socket->write(getInitAnswer(user).toUtf8());
@@ -466,17 +471,4 @@ void Chat::scrollToBottom()
 {
     QScrollBar *scrollBar = ui->messageArea->verticalScrollBar();
     scrollBar->setValue(scrollBar->maximum());
-}
-
-Chat::~Chat()
-{
-    delete ui;
-    delete server;
-    delete timer;
-    delete udpTimer;
-    delete settings;
-    delete addForm;
-    delete sendMsg;
-    delete udpSocketSender;
-    delete udpSocketReceiver;
 }

@@ -27,6 +27,8 @@ CONFIG += c++11
 SOURCES += \
     AddForm.cpp \
     downloadmanager.cpp \
+    items/downloaditem.cpp \
+    models/downloadmodel.cpp \
         main.cpp \
         Chat.cpp \
     Server.cpp \
@@ -37,7 +39,9 @@ HEADERS += \
         Chat.h \
     Server.h \
     Settings.h \
-    downloadmanager.h
+    downloadmanager.h \
+    items/downloaditem.h \
+    models/downloadmodel.h
 
 FORMS += \
     AddForm.ui \

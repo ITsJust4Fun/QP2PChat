@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+#include "models/downloadmodel.h"
+
 namespace Ui {
 class DownloadManager;
 }
@@ -13,10 +15,12 @@ class DownloadManager : public QWidget
 
 public:
     explicit DownloadManager(QWidget *parent = nullptr);
-    ~DownloadManager();
+    virtual ~DownloadManager();
+    void appendUser(QString &user);
 
 private:
     Ui::DownloadManager *ui;
+    DownloadModel *downloadModel;
 };
 
 #endif // DOWNLOADMANAGERDIALOG_H
