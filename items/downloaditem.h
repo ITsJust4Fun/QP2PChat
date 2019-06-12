@@ -21,6 +21,10 @@ public:
     void setProgress(int progress);
     void setPath(const QString &path);
     QString getPath() const;
+    QString getPathView();
+    void setIp(const QString &ip);
+    QString getIp();
+
 
     enum columns
     {
@@ -32,7 +36,9 @@ private:
     QList<DownloadItem *> m_childItems;
     QList<QVariant> m_itemData;
     DownloadItem *m_parentItem;
-    QString path;
+    QString *path;
+    QString *pathView;
+    QString *ip;
 };
 
 #endif // DOWNLOADITEM_H

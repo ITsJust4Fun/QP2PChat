@@ -10,11 +10,14 @@
 #include <QShortcut>
 #include <QUdpSocket>
 #include <QScrollBar>
+#include <QMimeData>
+#include <QThread>
 
 #include "Server.h"
 #include "Settings.h"
 #include "AddForm.h"
 #include "downloadmanager.h"
+#include "filespathsparser.h"
 
 namespace Ui {
 class Chat;
@@ -29,7 +32,7 @@ public:
     void connectAll();
     void connectSocket(QTcpSocket *socket);
     void connectToServer(const QString &ip);
-    void closeEvent (QCloseEvent *event);
+    void closeEvent (QCloseEvent *event) override;
     void incomingMessage(const QString &user, const QString &msg);
     void addUnreadMessage(QListWidgetItem *item);
     void removeUnreadMessagesFlag(QListWidgetItem *item);
@@ -39,7 +42,9 @@ public:
     bool isListWidgetContains(const QString &user);
     void connectUdpSocket();
     void scrollToBottom();
-    ~Chat();
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
+    virtual ~Chat() override;
 
     QList<QTcpSocket *> sockets;
     QList<QTcpSocket *> timeSockets;
@@ -64,6 +69,9 @@ public:
     QString noDataErr = "Please set username, ip and mask in settings";
     QString selectUserErr = "Please select user!";
     bool isDataSet;
+    QThread *treeFillThread;
+    FilesPathsParser *parser;
+
 
 public slots:
     void socketReady();
@@ -77,6 +85,7 @@ public slots:
     void addUser(const QString &ip);
     void readUdp();
     void addUdpUsers();
+    void deleteParser();
 
 signals:
     void messageReceived(const QString &user, const QString &msg);

@@ -11,6 +11,9 @@ DownloadManager::DownloadManager(QWidget *parent) :
     progressDelegate = new ProgressDelegate(this);
     ui->treeView->setModel(downloadModel);
     ui->treeView->setItemDelegate(progressDelegate);
+
+    downloader = new Downloader();
+    uploader = new Uploader();
 }
 
 DownloadManager::~DownloadManager()
@@ -26,4 +29,21 @@ void DownloadManager::appendUser(const QString &user)
 void DownloadManager::appendDownload(const QString &user, const QString &path)
 {
     downloadModel->appendDownload(user, path);
+}
+
+void DownloadManager::startUploading(DownloadItem *item)
+{
+    uploader->setIp(item->getIp());
+    uploader->setPath(item->getPath());
+    uploader->connectToServer();
+}
+
+void DownloadManager::startDownloading(DownloadItem *item)
+{
+
+}
+
+DownloadModel *DownloadManager::getModel()
+{
+    return downloadModel;
 }

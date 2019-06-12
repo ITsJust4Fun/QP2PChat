@@ -4,11 +4,17 @@ DownloadItem::DownloadItem(const QList<QVariant> &data, DownloadItem *parentItem
 {
     m_parentItem = parentItem;
     m_itemData = data;
+    ip = new QString("");
+    path = new QString("");
+    pathView = new QString("");
 }
 
 DownloadItem::~DownloadItem()
 {
     qDeleteAll(m_childItems);
+    delete ip;
+    delete path;
+    delete pathView;
 }
 
 void DownloadItem::appendChild(DownloadItem *child)
@@ -52,12 +58,20 @@ DownloadItem *DownloadItem::parentItem()
 
 void DownloadItem::setPath(const QString &path)
 {
-    this->path = path;
+    delete this->path;
+    delete this->pathView;
+    this->path = new QString(path);
+    pathView = new QString(*m_parentItem->pathView + "/" + m_itemData[NameColumn].toString());
 }
 
 QString DownloadItem::getPath() const
 {
-    return path;
+    return *path;
+}
+
+QString DownloadItem::getPathView()
+{
+    return *pathView;
 }
 
 void DownloadItem::setProgress(int progress)
@@ -66,14 +80,28 @@ void DownloadItem::setProgress(int progress)
     m_parentItem->updateProgress();
 }
 
+void DownloadItem::setIp(const QString &ip)
+{
+    delete this->ip;
+    this->ip = new QString(ip);
+}
+
+QString DownloadItem::getIp()
+{
+    return *ip;
+}
+
 void DownloadItem::updateProgress()
 {
+    if (!m_parentItem) {
+        return;
+    }
     double totalProgress = 0;
     for (auto item : m_childItems) {
         totalProgress += item->data(ProgressColumn).toInt();
     }
     if (m_childItems.count() > 0) {
         int progress = qRound(totalProgress / m_childItems.count());
-        m_itemData[ProgressColumn] = progress;
+        setProgress(progress);
     }
 }

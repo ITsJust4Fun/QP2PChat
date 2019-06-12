@@ -18,12 +18,20 @@ QVariant DownloadModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    if (role != Qt::DisplayRole)
-        return QVariant();
-
     DownloadItem *item = static_cast<DownloadItem *>(index.internalPointer());
-
-    return item->data(index.column());
+    if (role == Qt::DecorationRole) {
+        if (item->parentItem() == rootItem) {
+            return QIcon(":/icons/user.png");
+        }
+        QFileIconProvider iconProvider;
+        QFile file(item->getPath());
+        QFileInfo fileInfo(file);
+        return iconProvider.icon(fileInfo);
+    } else if (role == Qt::DisplayRole) {
+        return item->data(index.column());
+    } else {
+        return QVariant();
+    }
 }
 
 Qt::ItemFlags DownloadModel::flags(const QModelIndex &index) const
@@ -106,7 +114,7 @@ void DownloadModel::appendUser(const QString &user)
     rootItem->appendChild(new DownloadItem(userData, rootItem));
 }
 
-void DownloadModel::appendDownload(const QString &user, const QString &path)
+DownloadItem *DownloadModel::appendDownload(const QString &user, const QString &path)
 {
     DownloadItem *name = nullptr;
     for (int i = 0; i < rootItem->childCount(); i++) {
@@ -121,5 +129,7 @@ void DownloadModel::appendDownload(const QString &user, const QString &path)
         DownloadItem *item = new DownloadItem(download, name);
         item->setPath(path);
         name->appendChild(item);
+        return item;
     }
+    return nullptr;
 }

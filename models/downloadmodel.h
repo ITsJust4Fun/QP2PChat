@@ -2,6 +2,9 @@
 #define DOWNLOADMODEL_H
 
 #include <QAbstractItemModel>
+#include <QFileIconProvider>
+#include <QFileInfo>
+#include <QFile>
 
 #include "items/downloaditem.h"
 
@@ -22,7 +25,7 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     void appendUser(const QString &user);
-    void appendDownload(const QString &user, const QString &path);
+    DownloadItem *appendDownload(const QString &user, const QString &path);
 
 private:
     DownloadItem *rootItem;

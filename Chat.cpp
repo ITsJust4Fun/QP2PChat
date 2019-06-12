@@ -29,6 +29,7 @@ Chat::Chat(QWidget *parent) :
     connectUdpSocket();
 
     ui->setupUi(this);
+    treeFillThread = new QThread(this);
     connectAll();
 }
 
@@ -74,7 +75,6 @@ void Chat::connectAll()
             this, SLOT(addUser(const QString &)));
     connect(ui->listWidget, SIGNAL(itemClicked(QListWidgetItem *)),
             this, SLOT(getMessages(QListWidgetItem *)));
-
 }
 
 
@@ -164,7 +164,7 @@ void Chat::scan()
 {
     if (!isDataSet) {
         QMessageBox messageBox;
-        messageBox.critical(nullptr, "Error", noDataErr);
+        messageBox.critical(this, "Error", noDataErr);
         messageBox.setFixedSize(500,200);
         return;
     }
@@ -203,7 +203,7 @@ QString Chat::calcBroadcastIp(const QString &ip, const QString &mask)
 void Chat::showAbout()
 {
     QMessageBox messageBox;
-    messageBox.information(nullptr, "About",
+    messageBox.information(this, "About",
                            "QChat\nSite: https://github.com/ITsJust4Fun/QP2PChat\nOpen settings, enter info and chatting!");
     messageBox.setFixedSize(500,200);
 }
@@ -232,13 +232,13 @@ void Chat::sendMessage()
 {
     if (!isDataSet) {
         QMessageBox messageBox;
-        messageBox.critical(nullptr, "Error", noDataErr);
+        messageBox.critical(this, "Error", noDataErr);
         messageBox.setFixedSize(500,200);
         return;
     }
     if (!ui->listWidget->currentItem()) {
         QMessageBox messageBox;
-        messageBox.critical(nullptr, "Error", selectUserErr);
+        messageBox.critical(this, "Error", selectUserErr);
         messageBox.setFixedSize(500,200);
         return;
     }
@@ -401,7 +401,7 @@ void Chat::addUser(const QString &ip)
 {
     if (!isDataSet) {
         QMessageBox messageBox;
-        messageBox.critical(nullptr, "Error", noDataErr);
+        messageBox.critical(this, "Error", noDataErr);
         messageBox.setFixedSize(500,200);
         return;
     }
@@ -471,4 +471,34 @@ void Chat::scrollToBottom()
 {
     QScrollBar *scrollBar = ui->messageArea->verticalScrollBar();
     scrollBar->setValue(scrollBar->maximum());
+}
+
+void Chat::dragEnterEvent(QDragEnterEvent *event)
+{
+    event->acceptProposedAction();
+}
+
+void Chat::dropEvent(QDropEvent *event)
+{
+    if (treeFillThread->isRunning()) {
+        QMessageBox::warning(this, tr("Warning"),
+                             tr("Tree is filling.\n"
+                                "Please wait"),
+                             QMessageBox::Ok);
+        return;
+    }
+    QStringList paths = event->mimeData()->text().remove("file:///").split("\n");
+    paths.removeAll("");
+    event->acceptProposedAction();
+    parser = new FilesPathsParser(paths, downloadManager->getModel());
+    parser->moveToThread(treeFillThread);
+    connect(treeFillThread, SIGNAL(started()), parser, SLOT(parseFileTree()));
+    connect(parser, SIGNAL(treeIsReady()), treeFillThread, SLOT(quit()));
+    connect(parser, SIGNAL(treeIsReady()), this, SLOT(deleteParser()));
+    treeFillThread->start();
+}
+
+void Chat::deleteParser()
+{
+    delete parser;
 }

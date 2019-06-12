@@ -26,24 +26,30 @@ CONFIG += c++11
 
 SOURCES += \
     AddForm.cpp \
+    downloader.cpp \
     downloadmanager.cpp \
+    filespathsparser.cpp \
     items/downloaditem.cpp \
     models/downloadmodel.cpp \
         main.cpp \
         Chat.cpp \
     Server.cpp \
     Settings.cpp \
-    progressdelegate.cpp
+    progressdelegate.cpp \
+    uploader.cpp
 
 HEADERS += \
     AddForm.h \
         Chat.h \
     Server.h \
     Settings.h \
+    downloader.h \
     downloadmanager.h \
+    filespathsparser.h \
     items/downloaditem.h \
     models/downloadmodel.h \
-    progressdelegate.h
+    progressdelegate.h \
+    uploader.h
 
 FORMS += \
     AddForm.ui \
