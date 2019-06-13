@@ -8,12 +8,17 @@ DownloadManager::DownloadManager(QWidget *parent) :
     ui->setupUi(this);
 
     downloadModel = new DownloadModel(this);
+    downloadSortFilterProxyModel = new DownloadSortFilterProxyModel(this);
     progressDelegate = new ProgressDelegate(this);
-    ui->treeView->setModel(downloadModel);
+    downloadSortFilterProxyModel->setSourceModel(downloadModel);
+    ui->treeView->setModel(downloadSortFilterProxyModel);
     ui->treeView->setItemDelegate(progressDelegate);
 
     downloader = new Downloader();
     uploader = new Uploader();
+
+    ui->treeView->setSortingEnabled(true);
+    ui->treeView->sortByColumn(DownloadItem::NameColumn, Qt::AscendingOrder);
 }
 
 DownloadManager::~DownloadManager()

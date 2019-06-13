@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include "models/downloadmodel.h"
+#include "models/downloadsortfilterproxymodel.h"
 #include "progressdelegate.h"
 #include "downloader.h"
 #include "uploader.h"
@@ -30,6 +31,7 @@ public:
 private:
     Ui::DownloadManager *ui;
     DownloadModel *downloadModel;
+    DownloadSortFilterProxyModel *downloadSortFilterProxyModel;
     ProgressDelegate *progressDelegate;
     Downloader *downloader;
     Uploader *uploader;
@@ -40,6 +42,8 @@ private:
 
 signals:
     void uploaderReady();
+
+public slots:
 };
 
 #endif // DOWNLOADMANAGERDIALOG_H

@@ -25,7 +25,9 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     void appendUser(const QString &user);
+    DownloadItem *appendTransfer(const QString &user);
     DownloadItem *appendDownload(const QString &user, const QString &path);
+    DownloadItem *appendDownload(DownloadItem *itemParent, const QString &path);
 
 private:
     DownloadItem *rootItem;

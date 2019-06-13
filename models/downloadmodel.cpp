@@ -6,6 +6,7 @@ DownloadModel::DownloadModel(QObject *parent) :
     QList<QVariant> rootData;
     rootData << "Name" << "Progress";
     rootItem = new DownloadItem(rootData);
+    appendUser("kek");
 }
 
 DownloadModel::~DownloadModel()
@@ -22,6 +23,9 @@ QVariant DownloadModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DecorationRole) {
         if (item->parentItem() == rootItem) {
             return QIcon(":/icons/user.png");
+        }
+        if (item->data(DownloadItem::NameColumn).toString().contains("Transfer")) {
+            return QIcon(":/icons/transfer.png");
         }
         QFileIconProvider iconProvider;
         QFile file(item->getPath());
@@ -109,17 +113,22 @@ int DownloadModel::columnCount(const QModelIndex &parent) const
 
 void DownloadModel::appendUser(const QString &user)
 {
+    beginResetModel();
     QList<QVariant> userData;
     userData << user << 100;
     rootItem->appendChild(new DownloadItem(userData, rootItem));
+    endResetModel();
 }
 
 DownloadItem *DownloadModel::appendDownload(const QString &user, const QString &path)
 {
+    beginResetModel();
     DownloadItem *name = nullptr;
-    for (int i = 0; i < rootItem->childCount(); i++) {
-        if (rootItem->child(i)->data(DownloadItem::NameColumn) == user) {
-            name = rootItem->child(i);
+    if (!user.isEmpty()) {
+        for (int i = 0; i < rootItem->childCount(); i++) {
+            if (rootItem->child(i)->data(DownloadItem::NameColumn) == user) {
+                name = rootItem->child(i);
+            }
         }
     }
 
@@ -129,7 +138,46 @@ DownloadItem *DownloadModel::appendDownload(const QString &user, const QString &
         DownloadItem *item = new DownloadItem(download, name);
         item->setPath(path);
         name->appendChild(item);
+        endResetModel();
         return item;
     }
+    endResetModel();
+    return nullptr;
+}
+
+DownloadItem *DownloadModel::appendDownload(DownloadItem *itemParent, const QString &path)
+{
+    beginResetModel();
+    QList<QVariant> download;
+    download << path.mid(path.lastIndexOf("/") + 1) << 0;
+    DownloadItem *item = new DownloadItem(download, itemParent);
+    item->setPath(path);
+    itemParent->appendChild(item);
+    endResetModel();
+    return item;
+}
+
+DownloadItem *DownloadModel::appendTransfer(const QString &user)
+{
+    beginResetModel();
+    DownloadItem *name = nullptr;
+    if (!user.isEmpty()) {
+        for (int i = 0; i < rootItem->childCount(); i++) {
+            if (rootItem->child(i)->data(DownloadItem::NameColumn) == user) {
+                name = rootItem->child(i);
+            }
+        }
+    }
+
+    if (name) {
+        QList<QVariant> download;
+        download << "Transfer #" + QString::number(name->childCount() + 1) << 0;
+        DownloadItem *item = new DownloadItem(download, name);
+        item->setPath("");
+        name->appendChild(item);
+        endResetModel();
+        return item;
+    }
+    endResetModel();
     return nullptr;
 }

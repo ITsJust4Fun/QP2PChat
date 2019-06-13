@@ -16,12 +16,12 @@ FilesPathsParser::~FilesPathsParser()
 
 void FilesPathsParser::parseFileTree()
 {
-    model->appendUser("kek");
+    DownloadItem *itemParent = model->appendTransfer("kek");
     for (auto path : *paths) {
         QFile file(path);
         QFileInfo info(file);
         if (info.isDir()) {
-            DownloadItem *item = model->appendDownload("kek", path);
+            DownloadItem *item = model->appendDownload(itemParent, path);
             if (item)
                 getAllFilesInFolder(path, item);
         } else {
@@ -47,11 +47,7 @@ void FilesPathsParser::getAllFilesInFolder(QString &folderPath, DownloadItem *pa
         QFile file(entryPath);
         QFileInfo info(file);
 
-        QList<QVariant> download;
-        download << entryPath.mid(entryPath.lastIndexOf("/") + 1) << 0;
-        DownloadItem *item = new DownloadItem(download, parent);
-        item->setPath(entryPath);
-        parent->appendChild(item);
+        DownloadItem* item = model->appendDownload(parent, entryPath);
 
         if (info.isDir()) {
             getAllFilesInFolder(entryPath, item);

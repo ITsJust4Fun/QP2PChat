@@ -12,5 +12,6 @@
         <file>icons/stop.png</file>
         <file>icons/download.png</file>
         <file>icons/user.png</file>
+        <file>icons/transfer.png</file>
     </qresource>
 </RCC>

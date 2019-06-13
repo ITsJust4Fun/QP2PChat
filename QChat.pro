@@ -28,6 +28,7 @@ SOURCES += \
     AddForm.cpp \
     downloader.cpp \
     downloadmanager.cpp \
+    models/downloadsortfilterproxymodel.cpp \
     filespathsparser.cpp \
     items/downloaditem.cpp \
     models/downloadmodel.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
     Settings.h \
     downloader.h \
     downloadmanager.h \
+    models/downloadsortfilterproxymodel.h \
     filespathsparser.h \
     items/downloaditem.h \
     models/downloadmodel.h \
