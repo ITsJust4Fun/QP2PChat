@@ -209,7 +209,7 @@ void Server::sendUploadRequest(const QString &user, qint64 size)
 {
     QTcpSocket *socket = findSocket(user);
     QString ans = "{" + head + ", " + "\"user\":"
-            + "\"" + user + "\", "
+            + "\"" + localName + "\", "
             + "\"downloader\":"
             + "\"" + "try_upload" + "\", "
             + "\"size\":"
