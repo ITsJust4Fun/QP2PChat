@@ -39,7 +39,7 @@ void Downloader::incomingConnection(qintptr socketDescriptor)
 void Downloader::startDownloading()
 {
     numberOfBlocks = fileSize / BUFFER_SIZE;
-    numberOfBlocks = fileSize % BUFFER_SIZE == 0 ? numberOfBlocks : numberOfBlocks;
+    numberOfBlocks = fileSize % BUFFER_SIZE == 0 ? numberOfBlocks : numberOfBlocks + 1;
     downloadedBlocks = 0;
     partOfBlock = 0;
     QString filePath = downloadFolder + path;
