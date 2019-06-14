@@ -83,7 +83,7 @@ void Downloader::socketReady()
         downloadedBlocks++;
         partOfBlock = 0;
     }
-    bool isLastBlockDownloaded = partOfBlock + (downloadedBlocks * BUFFER_SIZE) == fileSize;
+    bool isLastBlockDownloaded = file->size() == fileSize;
     if (isLastBlockDownloaded) {
         downloadedBlocks++;
         finishDownload();
