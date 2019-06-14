@@ -71,6 +71,7 @@ void Downloader::socketReady()
             fileSize = doc.object().value("size").toString().toLongLong();
             startDownloading();
         }
+        return;
     }
     file->write(data);
     partOfBlock += data.size();
