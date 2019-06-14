@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonParseError>
+#include <QDir>
 #include <QDebug>
 
 #include "Server.h"

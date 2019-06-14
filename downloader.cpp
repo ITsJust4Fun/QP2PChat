@@ -42,16 +42,20 @@ void Downloader::startDownloading()
     numberOfBlocks = fileSize % BUFFER_SIZE == 0 ? numberOfBlocks : numberOfBlocks;
     downloadedBlocks = 0;
     partOfBlock = 0;
-    file = new QFile(downloadFolder + path);
+    QString filePath = downloadFolder + path;
+    QString folderPath = filePath.left(filePath.lastIndexOf('/'));
+    file = new QFile(filePath);
     int i = 1;
+    QDir dir(folderPath);
+    dir.mkpath(folderPath);
     while (!file->open(QIODevice::Append | QIODevice::NewOnly)) {
         delete file;
         int dotIndex = path.lastIndexOf('.');
         path = path.left(dotIndex) + "(" + QString::number(i)
                          + ")" + path.mid(dotIndex);
-        file = new QFile(path + extension);
+        file = new QFile(downloadFolder + path);
         i++;
-        emit pathChanged(path);
+        emit pathChanged(downloadFolder + path);
     }
     isDownloadFinished = false;
 }
