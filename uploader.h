@@ -34,6 +34,7 @@ private:
     QJsonDocument doc;
     QJsonParseError docError;
     QList<DownloadItem *> files;
+    DownloadItem *currentFile;
 
 signals:
     void blockUploaded(DownloadItem *item, const int progress) const;

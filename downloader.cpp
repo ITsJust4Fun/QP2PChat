@@ -30,9 +30,7 @@ void Downloader::incomingConnection(qintptr socketDescriptor)
     connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconnect()));
 
     qDebug() << "connected " + socket->peerAddress().toString().mid(7);
-    QString answer = "{" + head + ", " + "\"downloader\":"
-            + "\"" + "ready_download" + "\"}";
-    socket->write(answer.toUtf8());
+    sendMessage("next_file");
     allowConnect = false;
 }
 
@@ -74,6 +72,7 @@ void Downloader::socketReady()
             path = doc.object().value("path").toString();
             fileSize = doc.object().value("size").toString().toLongLong();
             startDownloading();
+            sendMessage("ready_download");
         }
         return;
     }
@@ -121,9 +120,7 @@ void Downloader::finishDownload()
     delete file;
     emit downloadFinished();*/
     isDownloadFinished = true;
-    QString answer = "{" + head + ", " + "\"downloader\":"
-                     + "\"" + "ready_download" + "\"}";
-    socket->write(answer.toUtf8());
+    sendMessage("next_file");
 }
 
 void Downloader::setPath(const QString &path)
@@ -159,4 +156,11 @@ bool Downloader::isDowloading()
 void Downloader::allowConnection(bool allowConnect)
 {
     this->allowConnect = allowConnect;
+}
+
+void Downloader::sendMessage(const QString &message)
+{
+    QString answer = "{" + head + ", " + "\"downloader\":"
+                     + "\"" + message + "\"}";
+    socket->write(answer.toUtf8());
 }

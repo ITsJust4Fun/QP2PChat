@@ -61,6 +61,7 @@ public slots:
     void startServer();
     void socketReady();
     void socketDisconnect();
+    void sendMessage(const QString &message);
 };
 
 #endif // DOWNLOADER_H

@@ -17,16 +17,15 @@ void Uploader::socketReady()
     doc = QJsonDocument::fromJson(data, &docError);
 
     if (Server::isJsonValid(doc, docError)) {
-        if (doc.object().value("downloader") == "ready_download") {
+        if (doc.object().value("downloader") == "next_file") {
             if (files.size() > 0) {
-                DownloadItem *item = files.first();
-                sendFileInfo(item->getPathView(),
-                             QString::number(QFile(item->getPath()).size()));
-                uploadFile(item);
-                files.removeOne(item);
+                currentFile = files.first();
+                sendFileInfo(currentFile->getPathView(),
+                             QString::number(QFile(currentFile->getPath()).size()));
             }
-        } else if (doc.object().value("downloader") == "ready") {
-            emit connected();
+        } else if (doc.object().value("downloader") == "ready_download") {
+            uploadFile(currentFile);
+            files.removeOne(currentFile);
         }
     }
 }
