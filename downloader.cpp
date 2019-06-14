@@ -65,7 +65,7 @@ void Downloader::socketReady()
 {
     QByteArray data = socket->readAll();
     doc = QJsonDocument::fromJson(data, &docError);
-    if (!isDownloadFinished) {
+    if (isDownloadFinished) {
         if (Server::isJsonValid(doc, docError)) {
             path = doc.object().value("path").toString();
             fileSize = doc.object().value("size").toString().toLongLong();
