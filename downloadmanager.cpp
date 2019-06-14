@@ -17,6 +17,7 @@ DownloadManager::DownloadManager(QWidget *parent) :
     downloader = new Downloader();
     uploader = new Uploader();
 
+    downloader->startServer();
     ui->treeView->setSortingEnabled(true);
     ui->treeView->sortByColumn(DownloadItem::NameColumn, Qt::AscendingOrder);
 }
