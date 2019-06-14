@@ -18,8 +18,12 @@ void Uploader::socketReady()
 
     if (Server::isJsonValid(doc, docError)) {
         if (doc.object().value("downloader") == "ready_download") {
-            uploadFile();
-        } else if (doc.object().value("downloader") == "connected") {
+            for (auto path : files) {
+                sendFileInfo(path->getPathView(),
+                             QString::number(QFile(path->getPath()).size()));
+                uploadFile(path->getPath());
+            }
+        } else if (doc.object().value("downloader") == "ready") {
             emit connected();
         }
     }
@@ -32,24 +36,19 @@ void Uploader::socketDisconnect()
     socket->deleteLater();
 }
 
-void Uploader::sendFileInfo()
+void Uploader::sendFileInfo(const QString &path, const QString &size)
 {
-
+    QString ans = "{" + head + ", "
+            + "\"path\":"
+            + "\"" + path + "\", "
+            + "\"size\":"
+            + "\"" + size + "\"}";
+    socket->write(ans.toUtf8());
 }
 
 void Uploader::connectToServer()
 {
     socket->connectToHost(ip, port);
-}
-
-void Uploader::setPath(const QString &path)
-{
-    this->path = path;
-}
-
-QString Uploader::getPath() const
-{
-    return path;
 }
 
 void Uploader::setIp(const QString &ip)
@@ -62,7 +61,12 @@ QString Uploader::getIp() const
     return ip;
 }
 
-void Uploader::uploadFile() const
+void Uploader::setFiles(QList<DownloadItem *> files)
+{
+    this->files = files;
+}
+
+void Uploader::uploadFile(const QString &path) const
 {
     QFile *file = new QFile(path);
     if (!file->open(QIODevice::ReadOnly)) {

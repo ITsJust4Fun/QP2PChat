@@ -12,6 +12,7 @@
 #include <QScrollBar>
 #include <QMimeData>
 #include <QThread>
+#include <QFileDialog>
 
 #include "Server.h"
 #include "Settings.h"
@@ -44,6 +45,7 @@ public:
     void scrollToBottom();
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
+    void showUploadRequest(const QString &user, const qint64 size);
     virtual ~Chat() override;
 
     QList<QTcpSocket *> sockets;
@@ -69,6 +71,8 @@ public:
     QString noDataErr = "Please set username, ip and mask in settings";
     QString selectUserErr = "Please select user!";
     bool isDataSet;
+    bool isUploading;
+    bool isDowloading;
     QThread *treeFillThread;
     FilesPathsParser *parser;
 

@@ -5,7 +5,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
-#include <QDebug>
 
 #include "models/downloadmodel.h"
 
@@ -13,15 +12,21 @@ class FilesPathsParser : public QObject
 {
     Q_OBJECT
 public:
-    explicit FilesPathsParser(QStringList &paths, DownloadModel *model, QObject *parent = nullptr);
+    explicit FilesPathsParser(QString &user, QStringList &paths,
+                              DownloadModel *model, QObject *parent = nullptr);
+    QList<DownloadItem *> getFiles();
+    qint64 getTotalSize();
+    QString getUser();
     virtual ~FilesPathsParser();
 
 private:
     void getAllFilesInFolder(QString &folderPath, DownloadItem *parent);
 
+    QString user;
     QStringList *paths;
-    QStringList *filesPaths;
+    QList<DownloadItem *> files;
     DownloadModel *model;
+    qint64 totalSize;
 
 signals:
     void treeIsReady();

@@ -1,22 +1,22 @@
 #include "filespathsparser.h"
 
-FilesPathsParser::FilesPathsParser(QStringList &paths, DownloadModel *model,
-                                   QObject *parent) : QObject(parent)
+FilesPathsParser::FilesPathsParser(QString &user, QStringList &paths,
+                                   DownloadModel *model, QObject *parent) : QObject(parent)
 {
     this->model = model;
+    this->user = user;
     this->paths = new QStringList(paths);
-    filesPaths = new QStringList();
+    totalSize = 0;
 }
 
 FilesPathsParser::~FilesPathsParser()
 {
     delete paths;
-    delete filesPaths;
 }
 
 void FilesPathsParser::parseFileTree()
 {
-    DownloadItem *itemParent = model->appendTransfer("kek");
+    DownloadItem *itemParent = model->appendTransfer(user);
     for (auto path : *paths) {
         QFile file(path);
         QFileInfo info(file);
@@ -25,12 +25,10 @@ void FilesPathsParser::parseFileTree()
             if (item)
                 getAllFilesInFolder(path, item);
         } else {
-            filesPaths->append(path);
-            model->appendDownload("kek", path);
+            DownloadItem *item = model->appendDownload(itemParent, path);
+            files.append(item);
+            totalSize += info.size();
         }
-    }
-    for (auto path : *filesPaths) {
-        qDebug() << path;
     }
     emit treeIsReady();
 }
@@ -52,7 +50,23 @@ void FilesPathsParser::getAllFilesInFolder(QString &folderPath, DownloadItem *pa
         if (info.isDir()) {
             getAllFilesInFolder(entryPath, item);
         } else {
-            filesPaths->append(entryPath);
+            files.append(item);
+            totalSize += info.size();
         }
     }
+}
+
+QList<DownloadItem *> FilesPathsParser::getFiles()
+{
+    return files;
+}
+
+qint64 FilesPathsParser::getTotalSize()
+{
+    return totalSize;
+}
+
+QString FilesPathsParser::getUser()
+{
+    return user;
 }

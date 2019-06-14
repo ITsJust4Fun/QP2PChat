@@ -9,6 +9,8 @@
 #include <QJsonParseError>
 #include <QDebug>
 
+#include "Server.h"
+
 class Downloader : public QTcpServer
 {
     Q_OBJECT
@@ -25,6 +27,9 @@ public:
     void startDownloading();
     void allowConnection(bool allowConnect);
     void rejectConnection(QTcpSocket *socket);
+
+
+    QString downloadFolder;
 
 private:
     void finishDownload();

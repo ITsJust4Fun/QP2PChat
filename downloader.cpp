@@ -31,16 +31,18 @@ void Downloader::incomingConnection(qintptr socketDescriptor)
 
     qDebug() << "connected " + socket->peerAddress().toString().mid(7);
     QString answer = "{" + head + ", " + "\"downloader\":"
-            + "\"" + "connected" + "\"}";
+            + "\"" + "ready_download" + "\"}";
     socket->write(answer.toUtf8());
     allowConnect = false;
 }
 
 void Downloader::startDownloading()
 {
+    numberOfBlocks = fileSize / BUFFER_SIZE;
+    numberOfBlocks = fileSize % BUFFER_SIZE == 0 ? numberOfBlocks : numberOfBlocks;
     downloadedBlocks = 0;
     partOfBlock = 0;
-    file = new QFile(path + extension);
+    file = new QFile(downloadFolder + path);
     int i = 1;
     while (!file->open(QIODevice::Append | QIODevice::NewOnly)) {
         delete file;
@@ -51,9 +53,6 @@ void Downloader::startDownloading()
         i++;
         emit pathChanged(path);
     }
-    QString answer = "{" + head + ", " + "\"downloader\":"
-            + "\"" + "ready_download" + "\"}";
-    socket->write(answer.toUtf8());
     isDownloadFinished = false;
 }
 
@@ -65,6 +64,14 @@ void Downloader::startServer()
 void Downloader::socketReady()
 {
     QByteArray data = socket->readAll();
+    doc = QJsonDocument::fromJson(data, &docError);
+    if (!isDownloadFinished) {
+        if (Server::isJsonValid(doc, docError)) {
+            path = doc.object().value("path").toString();
+            fileSize = doc.object().value("size").toString().toLongLong();
+            startDownloading();
+        }
+    }
     file->write(data);
     partOfBlock += data.size();
     if (partOfBlock == BUFFER_SIZE) {
@@ -103,11 +110,11 @@ void Downloader::rejectConnection(QTcpSocket *socket)
 void Downloader::finishDownload()
 {
     file->close();
-    QFileInfo fileInfo(file->fileName());
+    /*QFileInfo fileInfo(file->fileName());
     QString fileName = fileInfo.fileName();
     file->rename(fileName.left(fileName.lastIndexOf('.')));
     delete file;
-    emit downloadFinished();
+    emit downloadFinished();*/
     isDownloadFinished = true;
 }
 

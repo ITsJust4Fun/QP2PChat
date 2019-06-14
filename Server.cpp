@@ -205,6 +205,38 @@ void Server::socketDisconnect()
     socket->deleteLater();
 }
 
+void Server::sendUploadRequest(const QString &user, qint64 size)
+{
+    QTcpSocket *socket = findSocket(user);
+    QString ans = "{" + head + ", " + "\"user\":"
+            + "\"" + user + "\", "
+            + "\"downloader\":"
+            + "\"" + "try_upload" + "\", "
+            + "\"size\":"
+            + "\"" + QString::number(size) + "\"}";
+    socket->write(ans.toUtf8());
+}
+
+void Server::acceptUploadRequest(const QString &user)
+{
+    QTcpSocket *socket = findSocket(user);
+    QString ans = "{" + head + ", " + "\"user\":"
+            + "\"" + user + "\", "
+            + "\"downloader\":"
+            + "\"" + "upload_accepted" + "\"}";
+    socket->write(ans.toUtf8());
+}
+
+void Server::rejectUploadRequest(const QString &user)
+{
+    QTcpSocket *socket = findSocket(user);
+    QString ans = "{" + head + ", " + "\"user\":"
+            + "\"" + user + "\", "
+            + "\"downloader\":"
+            + "\"" + "upload_rejected" + "\"}";
+    socket->write(ans.toUtf8());
+}
+
 Server::~Server()
 {
     delete users;

@@ -19,6 +19,8 @@ Chat::Chat(QWidget *parent) :
     server = new Server();
     server->startServer(port);
     isDataSet = false;
+    isUploading = false;
+    isDowloading = false;
 
     settings = new Settings();
     addForm = new AddForm();
@@ -290,6 +292,13 @@ void Chat::socketReady()
                 connectToServer(ip);
                 timer->start();
             }
+        } else if (doc.object().value("downloader") != QJsonValue::Undefined) {
+            if (doc.object().value("downloader") == "try_upload") {
+                showUploadRequest(doc.object().value("user").toString(),
+                                  doc.object().value("size").toString().toLongLong());
+            } else if (doc.object().value("downloader") == "upload_accepted") {
+                downloadManager->startUploading(socket->peerAddress().toString());
+            }
         } else {
             if (!sockets.contains(socket)) {
                 QString user = doc.object().value("user").toString();
@@ -487,10 +496,30 @@ void Chat::dropEvent(QDropEvent *event)
                              QMessageBox::Ok);
         return;
     }
+    if (isUploading) {
+        QMessageBox::warning(this, tr("Warning"),
+                             tr("Already uploading\n"
+                                "Please wait"),
+                             QMessageBox::Ok);
+        return;
+    }
+    if (!isDataSet) {
+        QMessageBox messageBox;
+        messageBox.critical(this, "Error", noDataErr);
+        messageBox.setFixedSize(500,200);
+        return;
+    }
+    if (!ui->listWidget->currentItem()) {
+        QMessageBox messageBox;
+        messageBox.critical(this, "Error", selectUserErr);
+        messageBox.setFixedSize(500,200);
+        return;
+    }
+    QString user = ui->listWidget->currentItem()->text();
     QStringList paths = event->mimeData()->text().remove("file:///").split("\n");
     paths.removeAll("");
     event->acceptProposedAction();
-    parser = new FilesPathsParser(paths, downloadManager->getModel());
+    parser = new FilesPathsParser(user, paths, downloadManager->getModel());
     parser->moveToThread(treeFillThread);
     connect(treeFillThread, SIGNAL(started()), parser, SLOT(parseFileTree()));
     connect(parser, SIGNAL(treeIsReady()), treeFillThread, SLOT(quit()));
@@ -500,5 +529,29 @@ void Chat::dropEvent(QDropEvent *event)
 
 void Chat::deleteParser()
 {
+    isUploading = true;
+    downloadManager->setUploadFiles(parser->getFiles());
+    server->sendUploadRequest(parser->getUser(), parser->getTotalSize());
     delete parser;
+}
+
+void Chat::showUploadRequest(const QString &user, const qint64 size)
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "UploadRequest",
+                                  QString("Do you want start downloading files\n")
+                                  + "from user" + user + "\n"
+                                  + "with size: " + QString::number(size),
+                                  QMessageBox::Yes|QMessageBox::No);
+
+    if (reply == QMessageBox::Yes) {
+        QString folder = QFileDialog::getExistingDirectory(this,
+                                                           tr("Select Output Folder"),
+                                                           QDir::currentPath());
+        downloadManager->setDownloadFolder(folder);
+        downloadManager->setUser(user);
+        server->acceptUploadRequest(user);
+    } else {
+        server->rejectUploadRequest(user);
+    }
 }

@@ -38,6 +38,9 @@ public slots:
     void socketDisconnect();
     void addMsgToDatabase(const QString &user, const QString &msg);
     void setData(const QString &user, const QString &ip, const QString &mask);
+    void sendUploadRequest(const QString &user, qint64 size);
+    void acceptUploadRequest(const QString &user);
+    void rejectUploadRequest(const QString &user);
 
 signals:
     void dataReady(const QString &user, const QString &ip, const QString &mask);

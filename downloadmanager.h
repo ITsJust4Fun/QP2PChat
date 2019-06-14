@@ -23,9 +23,11 @@ public:
     void appendUser(const QString &user);
     void appendDownload(const QString &user, const QString &path);
     void appendUpload(const QString &user, const QString &path);
-    void startUploading(DownloadItem *item);
-    void startDownloading(DownloadItem *item);
-    void setUploader();
+    void startUploading(const QString &ip);
+    void setUser(const QString &user);
+    void setDownloadFolder(const QString &path);
+    void setUploadFiles(QList<DownloadItem *> files);
+    QString getDownloadFolder();
     DownloadModel *getModel();
 
 private:
@@ -35,9 +37,7 @@ private:
     ProgressDelegate *progressDelegate;
     Downloader *downloader;
     Uploader *uploader;
-    DownloadItem *currentDownload;
-    DownloadItem *currentUpload;
-    QMap<QString, QList<DownloadItem *> *> uploadList;
+    QList<DownloadItem *> uploadList;
     QMap<QString, QList<DownloadItem *> *> downloadList;
 
 signals:

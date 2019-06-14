@@ -36,19 +36,34 @@ void DownloadManager::appendDownload(const QString &user, const QString &path)
     downloadModel->appendDownload(user, path);
 }
 
-void DownloadManager::startUploading(DownloadItem *item)
+void DownloadManager::startUploading(const QString &ip)
 {
-    uploader->setIp(item->getIp());
-    uploader->setPath(item->getPath());
+    uploader->setIp(ip);
     uploader->connectToServer();
 }
 
-void DownloadManager::startDownloading(DownloadItem *item)
+void DownloadManager::setUser(const QString &user)
 {
-
+    downloader->setUser(user);
+    downloader->allowConnection(true);
 }
 
 DownloadModel *DownloadManager::getModel()
 {
     return downloadModel;
+}
+
+void DownloadManager::setDownloadFolder(const QString &path)
+{
+    downloader->downloadFolder = path;
+}
+
+QString DownloadManager::getDownloadFolder()
+{
+    return downloader->downloadFolder;
+}
+
+void DownloadManager::setUploadFiles(QList<DownloadItem *> files)
+{
+    uploader->setFiles(files);
 }

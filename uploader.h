@@ -8,6 +8,7 @@
 #include <QJsonParseError>
 
 #include "server.h"
+#include "items/downloaditem.h"
 
 class Uploader : public QObject
 {
@@ -16,17 +17,14 @@ public:
     explicit Uploader(QObject *parent = nullptr);
     virtual ~Uploader();
 
-    void setPath(const QString &path);
-    QString getPath() const;
     void setIp(const QString &ip);
     QString getIp() const;
-    void uploadFile() const;
+    void uploadFile(const QString &path) const;
     void connectToServer();
+    void setFiles(QList<DownloadItem *> files);
+    void sendFileInfo(const QString &path, const QString &size);
 
 private:
-    void sendFileInfo();
-
-    QString path;
     QString ip;
     QTcpSocket *socket;
     QFile *file;
@@ -35,11 +33,13 @@ private:
     QString head = "\"type\":\"p2p_connected\", \"status\":\"OK\"";
     QJsonDocument doc;
     QJsonParseError docError;
+    QList<DownloadItem *> files;
 
 signals:
     void blockUploaded(const qint64 progress) const;
     void fileUploaded() const;
     void connected();
+    void startUploading(const QString &path);
 
 public slots:
     void socketReady();

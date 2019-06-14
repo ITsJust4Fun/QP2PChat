@@ -1,4 +1,5 @@
 #include "downloadmodel.h"
+#include <QDebug>
 
 DownloadModel::DownloadModel(QObject *parent) :
     QAbstractItemModel(parent)
@@ -6,7 +7,6 @@ DownloadModel::DownloadModel(QObject *parent) :
     QList<QVariant> rootData;
     rootData << "Name" << "Progress";
     rootItem = new DownloadItem(rootData);
-    appendUser("kek");
 }
 
 DownloadModel::~DownloadModel()
@@ -122,7 +122,6 @@ void DownloadModel::appendUser(const QString &user)
 
 DownloadItem *DownloadModel::appendDownload(const QString &user, const QString &path)
 {
-    beginResetModel();
     DownloadItem *name = nullptr;
     if (!user.isEmpty()) {
         for (int i = 0; i < rootItem->childCount(); i++) {
@@ -133,15 +132,8 @@ DownloadItem *DownloadModel::appendDownload(const QString &user, const QString &
     }
 
     if (name) {
-        QList<QVariant> download;
-        download << path.mid(path.lastIndexOf("/") + 1) << 0;
-        DownloadItem *item = new DownloadItem(download, name);
-        item->setPath(path);
-        name->appendChild(item);
-        endResetModel();
-        return item;
+        return appendDownload(name, path);
     }
-    endResetModel();
     return nullptr;
 }
 
@@ -173,7 +165,6 @@ DownloadItem *DownloadModel::appendTransfer(const QString &user)
         QList<QVariant> download;
         download << "Transfer #" + QString::number(name->childCount() + 1) << 0;
         DownloadItem *item = new DownloadItem(download, name);
-        item->setPath("");
         name->appendChild(item);
         endResetModel();
         return item;
