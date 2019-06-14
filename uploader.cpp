@@ -48,6 +48,9 @@ void Uploader::sendFileInfo(const QString &path, const QString &size)
 
 void Uploader::connectToServer()
 {
+    socket = new QTcpSocket(this);
+    connect(socket, SIGNAL(readyRead()), this, SLOT(socketReady()));
+    connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconnect()));
     socket->connectToHost(ip, port);
 }
 
