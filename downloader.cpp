@@ -121,6 +121,9 @@ void Downloader::finishDownload()
     delete file;
     emit downloadFinished();*/
     isDownloadFinished = true;
+    QString answer = "{" + head + ", " + "\"downloader\":"
+                     + "\"" + "ready_download" + "\"}";
+    socket->write(answer.toUtf8());
 }
 
 void Downloader::setPath(const QString &path)

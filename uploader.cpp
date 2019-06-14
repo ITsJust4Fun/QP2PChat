@@ -18,10 +18,12 @@ void Uploader::socketReady()
 
     if (Server::isJsonValid(doc, docError)) {
         if (doc.object().value("downloader") == "ready_download") {
-            for (auto path : files) {
-                sendFileInfo(path->getPathView(),
-                             QString::number(QFile(path->getPath()).size()));
-                uploadFile(path->getPath());
+            if (files.size() > 0) {
+                DownloadItem *item = files.first();
+                sendFileInfo(item->getPathView(),
+                             QString::number(QFile(item->getPath()).size()));
+                uploadFile(item);
+                files.removeOne(item);
             }
         } else if (doc.object().value("downloader") == "ready") {
             emit connected();
@@ -69,9 +71,9 @@ void Uploader::setFiles(QList<DownloadItem *> files)
     this->files = files;
 }
 
-void Uploader::uploadFile(const QString &path) const
+void Uploader::uploadFile(DownloadItem *item) const
 {
-    QFile *file = new QFile(path);
+    QFile *file = new QFile(item->getPath());
     if (!file->open(QIODevice::ReadOnly)) {
         qDebug() << "can't open file!!!";
         return;
@@ -84,7 +86,7 @@ void Uploader::uploadFile(const QString &path) const
         arr = file->read(BUFFER_SIZE);
         socket->write(arr);
         socket->flush();
-        emit blockUploaded((i + 1) * 100 / numberOfBlocks);
+        item->setProgress(static_cast<int>((i + 1) * 100 / numberOfBlocks));
     }
     emit fileUploaded();
     file->close();

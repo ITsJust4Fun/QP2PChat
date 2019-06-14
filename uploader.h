@@ -19,7 +19,7 @@ public:
 
     void setIp(const QString &ip);
     QString getIp() const;
-    void uploadFile(const QString &path) const;
+    void uploadFile(DownloadItem *item) const;
     void connectToServer();
     void setFiles(QList<DownloadItem *> files);
     void sendFileInfo(const QString &path, const QString &size);
