@@ -20,6 +20,9 @@ DownloadManager::DownloadManager(QWidget *parent) :
     downloader->startServer();
     ui->treeView->setSortingEnabled(true);
     ui->treeView->sortByColumn(DownloadItem::NameColumn, Qt::AscendingOrder);
+
+    connect(uploader, SIGNAL(blockUploaded(DownloadItem *, const int)),
+            downloadModel, SLOT(setProgress(DownloadItem *, const int)));
 }
 
 DownloadManager::~DownloadManager()

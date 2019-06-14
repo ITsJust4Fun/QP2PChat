@@ -7,7 +7,7 @@
 #include <QJsonDocument>
 #include <QJsonParseError>
 
-#include "server.h"
+#include "Server.h"
 #include "items/downloaditem.h"
 
 class Uploader : public QObject
@@ -36,7 +36,7 @@ private:
     QList<DownloadItem *> files;
 
 signals:
-    void blockUploaded(const qint64 progress) const;
+    void blockUploaded(DownloadItem *item, const int progress) const;
     void fileUploaded() const;
     void connected();
     void startUploading(const QString &path);

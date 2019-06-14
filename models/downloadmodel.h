@@ -31,6 +31,9 @@ public:
 
 private:
     DownloadItem *rootItem;
+
+public slots:
+    void setProgress(DownloadItem *item, const int progress);
 };
 
 #endif // DOWNLOADMODEL_H

@@ -86,7 +86,7 @@ void Uploader::uploadFile(DownloadItem *item) const
         arr = file->read(BUFFER_SIZE);
         socket->write(arr);
         socket->flush();
-        item->setProgress(static_cast<int>((i + 1) * 100 / numberOfBlocks));
+        emit blockUploaded(item, static_cast<int>((i + 1) * 100 / numberOfBlocks));
     }
     emit fileUploaded();
     file->close();

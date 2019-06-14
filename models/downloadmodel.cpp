@@ -172,3 +172,10 @@ DownloadItem *DownloadModel::appendTransfer(const QString &user)
     endResetModel();
     return nullptr;
 }
+
+void DownloadModel::setProgress(DownloadItem *item, const int progress)
+{
+    beginResetModel();
+    item->setProgress(progress);
+    endResetModel();
+}
