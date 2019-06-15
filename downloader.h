@@ -30,9 +30,6 @@ public:
     void rejectConnection(QTcpSocket *socket);
     void setDownloadFiles(QList<DownloadItem *> files);
 
-
-    QString downloadFolder;
-
 private:
     void finishDownload();
 
@@ -53,10 +50,11 @@ private:
     QJsonDocument doc;
     QJsonParseError docError;
     QList<DownloadItem *> files;
+    DownloadItem *currentFile;
 
 signals:
     void pathChanged(const QString &path);
-    void blockUploaded(const qint64 progress) const;
+    void blockDownloaded(const qint64 progress) const;
     void downloadFinished();
 
 public slots:

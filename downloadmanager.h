@@ -44,6 +44,7 @@ private:
     QMap<QString, QList<DownloadItem *> *> downloadList;
     QThread *treeUpdater;
     FilesPathsParser *parser;
+    QString downloadFolder;
 
 signals:
     void uploaderReady();

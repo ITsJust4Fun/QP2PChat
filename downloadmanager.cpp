@@ -61,12 +61,12 @@ DownloadModel *DownloadManager::getModel()
 
 void DownloadManager::setDownloadFolder(const QString &path)
 {
-    downloader->downloadFolder = path;
+    downloadFolder = path;
 }
 
 QString DownloadManager::getDownloadFolder()
 {
-    return downloader->downloadFolder;
+    return downloadFolder;
 }
 
 void DownloadManager::setUploadFiles(QList<DownloadItem *> files)
@@ -77,7 +77,6 @@ void DownloadManager::setUploadFiles(QList<DownloadItem *> files)
 void DownloadManager::setDownloadFiles(const QJsonArray &files)
 {
     QStringList paths;
-    QString downloadFolder = downloader->downloadFolder;
     for (auto i : files) {
         QString path = i.toString();
         QString filePath = downloadFolder + path;
