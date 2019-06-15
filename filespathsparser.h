@@ -17,6 +17,7 @@ public:
     QList<DownloadItem *> getFiles();
     qint64 getTotalSize();
     QString getUser();
+    void setWhiteList(QStringList &list);
     virtual ~FilesPathsParser();
 
 private:
@@ -24,6 +25,7 @@ private:
 
     QString user;
     QStringList *paths;
+    QStringList *whiteList;
     QList<DownloadItem *> files;
     DownloadModel *model;
     qint64 totalSize;

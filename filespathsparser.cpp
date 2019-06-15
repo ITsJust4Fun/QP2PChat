@@ -8,10 +8,14 @@ FilesPathsParser::FilesPathsParser(const QString &user, QStringList &paths,
     this->paths = new QStringList(paths);
     this->mode = mode;
     totalSize = 0;
+    whiteList = nullptr;
 }
 
 FilesPathsParser::~FilesPathsParser()
 {
+    if (whiteList) {
+        delete whiteList;
+    }
     delete paths;
 }
 
@@ -26,9 +30,15 @@ void FilesPathsParser::parseFileTree()
             if (item)
                 getAllFilesInFolder(path, item);
         } else {
-            DownloadItem *item = model->appendDownload(itemParent, path, mode);
-            files.append(item);
-            totalSize += info.size();
+            if (!whiteList) {
+                DownloadItem *item = model->appendDownload(itemParent, path, mode);
+                files.append(item);
+                totalSize += info.size();
+            } else if (whiteList->contains(path)) {
+                DownloadItem *item = model->appendDownload(itemParent, path, mode);
+                files.append(item);
+                totalSize += info.size();
+            }
         }
     }
     emit treeIsReady();
@@ -46,13 +56,19 @@ void FilesPathsParser::getAllFilesInFolder(QString &folderPath, DownloadItem *pa
         QFile file(entryPath);
         QFileInfo info(file);
 
-        DownloadItem* item = model->appendDownload(parent, entryPath, mode);
-
         if (info.isDir()) {
+            DownloadItem* item = model->appendDownload(parent, entryPath, mode);
             getAllFilesInFolder(entryPath, item);
         } else {
-            files.append(item);
-            totalSize += info.size();
+            if (!whiteList) {
+                DownloadItem* item = model->appendDownload(parent, entryPath, mode);
+                files.append(item);
+                totalSize += info.size();
+            } else if (whiteList->contains(entryPath)) {
+                DownloadItem* item = model->appendDownload(parent, entryPath, mode);
+                files.append(item);
+                totalSize += info.size();
+            }
         }
     }
 }
@@ -70,4 +86,12 @@ qint64 FilesPathsParser::getTotalSize()
 QString FilesPathsParser::getUser()
 {
     return user;
+}
+
+void FilesPathsParser::setWhiteList(QStringList &list)
+{
+    if (whiteList) {
+        delete whiteList;
+    }
+    whiteList = new QStringList(list);
 }

@@ -44,9 +44,21 @@ void Downloader::startDownloading()
     numberOfBlocks = fileSize % BUFFER_SIZE == 0 ? numberOfBlocks : numberOfBlocks + 1;
     downloadedBlocks = 0;
     partOfBlock = 0;
+    currentFile = nullptr;
     for (auto item : files) {
         if (item->getPathView() == path) {
             currentFile = item;
+        }
+    }
+    if (!currentFile) {
+        for (auto item : files) {
+            QString viewPath = item->getPathView();
+            QString viewPathRight = viewPath.mid(viewPath.lastIndexOf(')') + 1);
+            QString viewPathLeft = viewPath.left(viewPath.lastIndexOf('('));
+            viewPath = viewPathLeft + viewPathRight;
+            if (viewPath == path) {
+                currentFile = item;
+            }
         }
     }
     QString filePath = currentFile->getPath();
@@ -93,7 +105,7 @@ void Downloader::socketReady()
         downloadedBlocks++;
         finishDownload();
     }
-    emit progressUpdated(currentFile, static_cast<int>(file->size() * 100 / fileSize));
+    emit progressUpdated(currentFile, static_cast<int>(downloadedBlocks * 100 / numberOfBlocks));
 }
 
 void Downloader::socketDisconnect()

@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QThread>
+#include <QFile>
+#include <QFileInfo>
 
 #include "models/downloadmodel.h"
 #include "models/downloadsortfilterproxymodel.h"

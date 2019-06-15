@@ -87,8 +87,15 @@ void DownloadManager::setDownloadFiles(const QJsonArray &files)
         while (!file->open(QIODevice::Append | QIODevice::NewOnly)) {
             delete file;
             int dotIndex = path.lastIndexOf('.');
-            path = path.left(dotIndex) + "(" + QString::number(j)
-                             + ")" + path.mid(dotIndex);
+            if (path[dotIndex - 1] == ')') {
+                int leftIndex = path.lastIndexOf('(');
+                int rightIndex = path.lastIndexOf(')');
+                path = path.left(leftIndex + 1) + QString::number(j)
+                                                + path.mid(rightIndex);
+            } else {
+                path = path.left(dotIndex) + "(" + QString::number(j)
+                                           + ")" + path.mid(dotIndex);
+            }
             file = new QFile(downloadFolder + path);
             j++;
         }
@@ -110,6 +117,7 @@ void DownloadManager::setDownloadFiles(const QJsonArray &files)
     }
     parser = new FilesPathsParser(downloader->getUser(), listForParser,
                                   downloadModel, DownloadItem::DownloadMode);
+    parser->setWhiteList(paths);
     parser->moveToThread(treeUpdater);
     connect(treeUpdater, SIGNAL(started()), parser, SLOT(parseFileTree()));
     connect(parser, SIGNAL(treeIsReady()), treeUpdater, SLOT(quit()));
