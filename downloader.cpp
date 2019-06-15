@@ -82,7 +82,7 @@ void Downloader::socketReady()
         downloadedBlocks++;
         finishDownload();
     }
-    currentFile->setProgress(static_cast<int>(downloadedBlocks * 100 / numberOfBlocks));
+    emit progressUpdated(currentFile, static_cast<int>(file->size() * 100 / fileSize));
 }
 
 void Downloader::socketDisconnect()
@@ -115,6 +115,7 @@ void Downloader::finishDownload()
     delete file;
     emit downloadFinished();*/
     isDownloadFinished = true;
+    files.removeOne(currentFile);
     sendMessage("next_file");
 }
 

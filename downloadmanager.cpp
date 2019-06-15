@@ -25,6 +25,8 @@ DownloadManager::DownloadManager(QWidget *parent) :
 
     connect(uploader, SIGNAL(blockUploaded(DownloadItem *, const int)),
             downloadModel, SLOT(setProgress(DownloadItem *, const int)));
+    connect(downloader, SIGNAL(progressUpdated(DownloadItem *, const int)),
+            downloadModel, SLOT(setProgress(DownloadItem *, const int)));
 }
 
 DownloadManager::~DownloadManager()

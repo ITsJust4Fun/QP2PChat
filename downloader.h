@@ -54,7 +54,7 @@ private:
 
 signals:
     void pathChanged(const QString &path);
-    void blockDownloaded(const qint64 progress) const;
+    void progressUpdated(DownloadItem* item, const int progress) const;
     void downloadFinished();
 
 public slots:
