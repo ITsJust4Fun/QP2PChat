@@ -522,7 +522,7 @@ void Chat::dropEvent(QDropEvent *event)
     QStringList paths = event->mimeData()->text().remove("file:///").split("\n");
     paths.removeAll("");
     event->acceptProposedAction();
-    parser = new FilesPathsParser(user, paths, downloadManager->getModel());
+    parser = new FilesPathsParser(user, paths, downloadManager->getModel(), DownloadItem::UploadMode);
     parser->moveToThread(treeFillThread);
     connect(treeFillThread, SIGNAL(started()), parser, SLOT(parseFileTree()));
     connect(parser, SIGNAL(treeIsReady()), treeFillThread, SLOT(quit()));

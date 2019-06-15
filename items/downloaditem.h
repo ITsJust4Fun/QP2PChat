@@ -22,8 +22,8 @@ public:
     void setPath(const QString &path);
     QString getPath() const;
     QString getPathView();
-    void setIp(const QString &ip);
-    QString getIp();
+    void setMode(int itemMode);
+    int getMode();
 
 
     enum columns
@@ -32,13 +32,20 @@ public:
         ProgressColumn
     };
 
+    enum mode
+    {
+        MixMode,
+        DownloadMode,
+        UploadMode
+    };
+
 private:
     QList<DownloadItem *> m_childItems;
     QList<QVariant> m_itemData;
     DownloadItem *m_parentItem;
     QString *path;
     QString *pathView;
-    QString *ip;
+    int itemMode;
 };
 
 #endif // DOWNLOADITEM_H

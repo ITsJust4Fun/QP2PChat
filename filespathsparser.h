@@ -13,7 +13,7 @@ class FilesPathsParser : public QObject
     Q_OBJECT
 public:
     explicit FilesPathsParser(const QString &user, QStringList &paths,
-                              DownloadModel *model, QObject *parent = nullptr);
+                              DownloadModel *model, int mode, QObject *parent = nullptr);
     QList<DownloadItem *> getFiles();
     qint64 getTotalSize();
     QString getUser();
@@ -27,6 +27,7 @@ private:
     QList<DownloadItem *> files;
     DownloadModel *model;
     qint64 totalSize;
+    int mode;
 
 signals:
     void treeIsReady();

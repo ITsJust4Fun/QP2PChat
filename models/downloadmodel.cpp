@@ -120,7 +120,7 @@ void DownloadModel::appendUser(const QString &user)
     endResetModel();
 }
 
-DownloadItem *DownloadModel::appendDownload(const QString &user, const QString &path)
+DownloadItem *DownloadModel::appendDownload(const QString &user, const QString &path, int mode)
 {
     DownloadItem *name = nullptr;
     if (!user.isEmpty()) {
@@ -132,24 +132,25 @@ DownloadItem *DownloadModel::appendDownload(const QString &user, const QString &
     }
 
     if (name) {
-        return appendDownload(name, path);
+        return appendDownload(name, path, mode);
     }
     return nullptr;
 }
 
-DownloadItem *DownloadModel::appendDownload(DownloadItem *itemParent, const QString &path)
+DownloadItem *DownloadModel::appendDownload(DownloadItem *itemParent, const QString &path, int mode)
 {
     beginResetModel();
     QList<QVariant> download;
     download << path.mid(path.lastIndexOf("/") + 1) << 0;
     DownloadItem *item = new DownloadItem(download, itemParent);
     item->setPath(path);
+    item->setMode(mode);
     itemParent->appendChild(item);
     endResetModel();
     return item;
 }
 
-DownloadItem *DownloadModel::appendTransfer(const QString &user)
+DownloadItem *DownloadModel::appendTransfer(const QString &user, int mode)
 {
     DownloadItem *name = nullptr;
     if (!user.isEmpty()) {
@@ -165,6 +166,7 @@ DownloadItem *DownloadModel::appendTransfer(const QString &user)
         QList<QVariant> download;
         download << "Transfer #" + QString::number(name->childCount() + 1) << 0;
         DownloadItem *item = new DownloadItem(download, name);
+        name->setMode(mode);
         name->appendChild(item);
         endResetModel();
         return item;

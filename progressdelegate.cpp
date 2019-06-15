@@ -28,6 +28,20 @@ void ProgressDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         progressBarOption.text = QString::number(value) + "%";
         progressBarOption.progress = value;
 
+        DownloadItem *item = static_cast<DownloadItem *>(index.internalPointer());
+
+        if (item->getMode() == DownloadItem::UploadMode) {
+            QPalette palette = progressBarOption.palette;
+            QColor color(0, 200, 200);
+            palette.setColor(QPalette::Highlight, color);
+            progressBarOption.palette = palette;
+        } else if (item->getMode() == DownloadItem::MixMode) {
+            QPalette palette = progressBarOption.palette;
+            QColor color(255, 0, 0);
+            palette.setColor(QPalette::Highlight, color);
+            progressBarOption.palette = palette;
+        }
+
         QApplication::style()->drawControl(QStyle::CE_ProgressBar,
         &progressBarOption, painter);
     }

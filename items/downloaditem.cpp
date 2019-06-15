@@ -4,15 +4,14 @@ DownloadItem::DownloadItem(const QList<QVariant> &data, DownloadItem *parentItem
 {
     m_parentItem = parentItem;
     m_itemData = data;
-    ip = new QString("");
     path = new QString("");
     pathView = new QString("");
+    itemMode = MixMode;
 }
 
 DownloadItem::~DownloadItem()
 {
     qDeleteAll(m_childItems);
-    delete ip;
     delete path;
     delete pathView;
 }
@@ -80,15 +79,14 @@ void DownloadItem::setProgress(int progress)
     m_parentItem->updateProgress();
 }
 
-void DownloadItem::setIp(const QString &ip)
+void DownloadItem::setMode(int itemMode)
 {
-    delete this->ip;
-    this->ip = new QString(ip);
+    this->itemMode = itemMode;
 }
 
-QString DownloadItem::getIp()
+int DownloadItem::getMode()
 {
-    return *ip;
+    return itemMode;
 }
 
 void DownloadItem::updateProgress()

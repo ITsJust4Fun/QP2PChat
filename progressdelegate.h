@@ -4,6 +4,8 @@
 #include <QStyledItemDelegate>
 #include <QApplication>
 
+#include "items/downloaditem.h"
+
 class ProgressDelegate : public QStyledItemDelegate
 {
     Q_OBJECT

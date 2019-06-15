@@ -1,11 +1,12 @@
 #include "filespathsparser.h"
 
 FilesPathsParser::FilesPathsParser(const QString &user, QStringList &paths,
-                                   DownloadModel *model, QObject *parent) : QObject(parent)
+                                   DownloadModel *model, int mode, QObject *parent) : QObject(parent)
 {
     this->model = model;
     this->user = user;
     this->paths = new QStringList(paths);
+    this->mode = mode;
     totalSize = 0;
 }
 
@@ -16,16 +17,16 @@ FilesPathsParser::~FilesPathsParser()
 
 void FilesPathsParser::parseFileTree()
 {
-    DownloadItem *itemParent = model->appendTransfer(user);
+    DownloadItem *itemParent = model->appendTransfer(user, mode);
     for (auto path : *paths) {
         QFile file(path);
         QFileInfo info(file);
         if (info.isDir()) {
-            DownloadItem *item = model->appendDownload(itemParent, path);
+            DownloadItem *item = model->appendDownload(itemParent, path, mode);
             if (item)
                 getAllFilesInFolder(path, item);
         } else {
-            DownloadItem *item = model->appendDownload(itemParent, path);
+            DownloadItem *item = model->appendDownload(itemParent, path, mode);
             files.append(item);
             totalSize += info.size();
         }
@@ -45,7 +46,7 @@ void FilesPathsParser::getAllFilesInFolder(QString &folderPath, DownloadItem *pa
         QFile file(entryPath);
         QFileInfo info(file);
 
-        DownloadItem* item = model->appendDownload(parent, entryPath);
+        DownloadItem* item = model->appendDownload(parent, entryPath, mode);
 
         if (info.isDir()) {
             getAllFilesInFolder(entryPath, item);

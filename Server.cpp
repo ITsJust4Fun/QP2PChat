@@ -226,7 +226,6 @@ void Server::sendUploadRequest(const QString &user, QList<DownloadItem *> files,
         QString msgs = paths.join("\", \"");
         answer += msgs + "\"]}";
     }
-    qDebug() << answer;
     socket->write(answer.toUtf8());
 }
 

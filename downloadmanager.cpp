@@ -39,11 +39,6 @@ void DownloadManager::appendUser(const QString &user)
     downloadModel->appendUser(user);
 }
 
-void DownloadManager::appendDownload(const QString &user, const QString &path)
-{
-    downloadModel->appendDownload(user, path);
-}
-
 void DownloadManager::startUploading(const QString &ip)
 {
     uploader->setIp(ip);
@@ -112,7 +107,7 @@ void DownloadManager::setDownloadFiles(const QJsonArray &files)
         }
     }
     parser = new FilesPathsParser(downloader->getUser(), listForParser,
-                                  downloadModel);
+                                  downloadModel, DownloadItem::DownloadMode);
     parser->moveToThread(treeUpdater);
     connect(treeUpdater, SIGNAL(started()), parser, SLOT(parseFileTree()));
     connect(parser, SIGNAL(treeIsReady()), treeUpdater, SLOT(quit()));

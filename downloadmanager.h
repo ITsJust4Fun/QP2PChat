@@ -23,8 +23,6 @@ public:
     explicit DownloadManager(QWidget *parent = nullptr);
     virtual ~DownloadManager();
     void appendUser(const QString &user);
-    void appendDownload(const QString &user, const QString &path);
-    void appendUpload(const QString &user, const QString &path);
     void startUploading(const QString &ip);
     void setUser(const QString &user);
     void setDownloadFolder(const QString &path);
