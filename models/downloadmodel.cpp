@@ -1,5 +1,4 @@
 #include "downloadmodel.h"
-#include <QDebug>
 
 DownloadModel::DownloadModel(QObject *parent) :
     QAbstractItemModel(parent)
@@ -178,9 +177,12 @@ void DownloadModel::setProgress(DownloadItem *item, const int progress)
     if (item == rootItem) {
         return;
     };
-    QModelIndex itemIndex = createIndex(item->row(), DownloadItem::ProgressColumn, item);
     item->setProgress(progress);
-    emit dataChanged(itemIndex, itemIndex);
+    while (item != rootItem) {
+        QModelIndex itemIndex = createIndex(item->row(), DownloadItem::ProgressColumn, item);
+        emit dataChanged(itemIndex, itemIndex);
+        item = item->parentItem();
+    }
 }
 
 void DownloadModel::beginAppendRow(DownloadItem *item)
