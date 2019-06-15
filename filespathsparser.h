@@ -12,7 +12,7 @@ class FilesPathsParser : public QObject
 {
     Q_OBJECT
 public:
-    explicit FilesPathsParser(QString &user, QStringList &paths,
+    explicit FilesPathsParser(const QString &user, QStringList &paths,
                               DownloadModel *model, QObject *parent = nullptr);
     QList<DownloadItem *> getFiles();
     qint64 getTotalSize();

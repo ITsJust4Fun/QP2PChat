@@ -30,6 +30,9 @@ public:
     DownloadItem *appendDownload(DownloadItem *itemParent, const QString &path);
 
 private:
+    void beginAppendRow(DownloadItem *item);
+    void endAppendRow();
+    QModelIndex getChildIndex(QModelIndex parent);
     DownloadItem *rootItem;
 
 public slots:

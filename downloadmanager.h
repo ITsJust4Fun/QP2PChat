@@ -2,12 +2,14 @@
 #define DOWNLOADMANAGERDIALOG_H
 
 #include <QWidget>
+#include <QThread>
 
 #include "models/downloadmodel.h"
 #include "models/downloadsortfilterproxymodel.h"
 #include "progressdelegate.h"
 #include "downloader.h"
 #include "uploader.h"
+#include "filespathsparser.h"
 
 namespace Ui {
 class DownloadManager;
@@ -26,6 +28,7 @@ public:
     void startUploading(const QString &ip);
     void setUser(const QString &user);
     void setDownloadFolder(const QString &path);
+    void setDownloadFiles(const QJsonArray &files);
     void setUploadFiles(QList<DownloadItem *> files);
     QString getDownloadFolder();
     DownloadModel *getModel();
@@ -39,11 +42,15 @@ private:
     Uploader *uploader;
     QList<DownloadItem *> uploadList;
     QMap<QString, QList<DownloadItem *> *> downloadList;
+    QThread *treeUpdater;
+    FilesPathsParser *parser;
 
 signals:
     void uploaderReady();
+    void readyDownload(const QString &user);
 
 public slots:
+    void onTreeViewReady();
 };
 
 #endif // DOWNLOADMANAGERDIALOG_H

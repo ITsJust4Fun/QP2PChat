@@ -13,8 +13,17 @@ DownloadSortFilterProxyModel::~DownloadSortFilterProxyModel()
 
 bool DownloadSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    QString leftPath = static_cast<DownloadItem *>(left.internalPointer())->getPath();
-    QString rightPath = static_cast<DownloadItem *>(right.internalPointer())->getPath();
+    DownloadItem *itemLeft = static_cast<DownloadItem *>(left.internalPointer());
+    DownloadItem *itemRight = static_cast<DownloadItem *>(right.internalPointer());
+    if (!itemLeft && !itemRight) {
+        return true;
+    } else if (!itemLeft) {
+        return true;
+    } else if (!itemRight) {
+        return false;
+    }
+    QString leftPath = itemLeft->getPath();
+    QString rightPath = itemRight->getPath();
     QString leftName = left.data().toString();
     QString rightName = right.data().toString();
     bool isLeftFolder = QFileInfo(QFile(leftPath)).isDir();

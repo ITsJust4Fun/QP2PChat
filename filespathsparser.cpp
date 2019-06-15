@@ -1,6 +1,6 @@
 #include "filespathsparser.h"
 
-FilesPathsParser::FilesPathsParser(QString &user, QStringList &paths,
+FilesPathsParser::FilesPathsParser(const QString &user, QStringList &paths,
                                    DownloadModel *model, QObject *parent) : QObject(parent)
 {
     this->model = model;

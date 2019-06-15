@@ -45,6 +45,7 @@ signals:
 public slots:
     void socketReady();
     void socketDisconnect();
+    void updateProgress(qint64 bytes);
 };
 
 #endif // UPLOADER_H

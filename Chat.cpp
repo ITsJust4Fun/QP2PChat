@@ -77,6 +77,8 @@ void Chat::connectAll()
             this, SLOT(addUser(const QString &)));
     connect(ui->listWidget, SIGNAL(itemClicked(QListWidgetItem *)),
             this, SLOT(getMessages(QListWidgetItem *)));
+    connect(downloadManager, SIGNAL(readyDownload(const QString &)),
+            server, SLOT(acceptUploadRequest(const QString &)));
 }
 
 
@@ -295,6 +297,7 @@ void Chat::socketReady()
         } else if (doc.object().value("downloader") != QJsonValue::Undefined) {
             if (doc.object().value("downloader") == "try_upload") {
                 showUploadRequest(doc.object().value("user").toString(),
+                                  doc.object().value("files").toArray(),
                                   doc.object().value("size").toString().toLongLong());
             } else if (doc.object().value("downloader") == "upload_accepted") {
                 downloadManager->startUploading(socket->peerAddress().toString());
@@ -531,26 +534,30 @@ void Chat::deleteParser()
 {
     isUploading = true;
     downloadManager->setUploadFiles(parser->getFiles());
-    server->sendUploadRequest(parser->getUser(), parser->getTotalSize());
+    server->sendUploadRequest(parser->getUser(), parser->getFiles(), parser->getTotalSize());
     delete parser;
 }
 
-void Chat::showUploadRequest(const QString &user, const qint64 size)
+void Chat::showUploadRequest(const QString &user, const QJsonArray &files, const qint64 size)
 {
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "UploadRequest",
                                   QString("Do you want start downloading files\n")
-                                  + "from user" + user + "\n"
-                                  + "with size: " + QString::number(size),
+                                  + "from user: " + user + "\n"
+                                  + "Files size: " + QString::number(static_cast<double>(size) / (1024 * 1024)),
                                   QMessageBox::Yes|QMessageBox::No);
 
     if (reply == QMessageBox::Yes) {
         QString folder = QFileDialog::getExistingDirectory(this,
                                                            tr("Select Output Folder"),
                                                            QDir::currentPath());
+        if (folder == "") {
+            server->rejectUploadRequest(user);
+            return;
+        }
         downloadManager->setDownloadFolder(folder);
         downloadManager->setUser(user);
-        server->acceptUploadRequest(user);
+        downloadManager->setDownloadFiles(files);
     } else {
         server->rejectUploadRequest(user);
     }

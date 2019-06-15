@@ -37,6 +37,11 @@ void Uploader::socketDisconnect()
     socket->deleteLater();
 }
 
+void Uploader::updateProgress(qint64 bytes)
+{
+    qDebug() << bytes;
+}
+
 void Uploader::sendFileInfo(const QString &path, const QString &size)
 {
     QString ans = "{" + head + ", "
@@ -52,6 +57,7 @@ void Uploader::connectToServer()
     socket = new QTcpSocket(this);
     connect(socket, SIGNAL(readyRead()), this, SLOT(socketReady()));
     connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconnect()));
+    connect(socket, SIGNAL(bytesWritten(qint64)), this, SLOT(updateProgress(qint64)));
     socket->connectToHost(ip, port);
 }
 

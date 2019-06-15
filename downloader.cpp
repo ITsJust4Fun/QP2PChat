@@ -164,3 +164,8 @@ void Downloader::sendMessage(const QString &message)
                      + "\"" + message + "\"}";
     socket->write(answer.toUtf8());
 }
+
+void Downloader::setDownloadFiles(QList<DownloadItem *> files)
+{
+    this->files = files;
+}

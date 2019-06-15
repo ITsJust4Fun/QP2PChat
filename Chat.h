@@ -45,7 +45,7 @@ public:
     void scrollToBottom();
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
-    void showUploadRequest(const QString &user, const qint64 size);
+    void showUploadRequest(const QString &user, const QJsonArray &files, const qint64 size);
     virtual ~Chat() override;
 
     QList<QTcpSocket *> sockets;

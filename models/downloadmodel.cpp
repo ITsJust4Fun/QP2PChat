@@ -116,7 +116,8 @@ void DownloadModel::appendUser(const QString &user)
     beginResetModel();
     QList<QVariant> userData;
     userData << user << 100;
-    rootItem->appendChild(new DownloadItem(userData, rootItem));
+    DownloadItem *item = new DownloadItem(userData, rootItem);
+    rootItem->appendChild(item);
     endResetModel();
 }
 
@@ -151,7 +152,6 @@ DownloadItem *DownloadModel::appendDownload(DownloadItem *itemParent, const QStr
 
 DownloadItem *DownloadModel::appendTransfer(const QString &user)
 {
-    beginResetModel();
     DownloadItem *name = nullptr;
     if (!user.isEmpty()) {
         for (int i = 0; i < rootItem->childCount(); i++) {
@@ -162,6 +162,7 @@ DownloadItem *DownloadModel::appendTransfer(const QString &user)
     }
 
     if (name) {
+        beginResetModel();
         QList<QVariant> download;
         download << "Transfer #" + QString::number(name->childCount() + 1) << 0;
         DownloadItem *item = new DownloadItem(download, name);
@@ -169,13 +170,30 @@ DownloadItem *DownloadModel::appendTransfer(const QString &user)
         endResetModel();
         return item;
     }
-    endResetModel();
     return nullptr;
 }
 
 void DownloadModel::setProgress(DownloadItem *item, const int progress)
-{
-    beginResetModel();
+{ 
+    if (item == rootItem) {
+        return;
+    };
+    QModelIndex itemIndex = createIndex(item->row(), DownloadItem::ProgressColumn, item);
     item->setProgress(progress);
-    endResetModel();
+    emit dataChanged(itemIndex, itemIndex);
+}
+
+void DownloadModel::beginAppendRow(DownloadItem *item)
+{
+    QModelIndex itemIndex;
+    if (item != rootItem) {
+        itemIndex = createIndex(item->row(), DownloadItem::NameColumn, item);
+    }
+    int rowIndex = item->childCount();
+    beginInsertRows(itemIndex, rowIndex, rowIndex);
+}
+
+void DownloadModel::endAppendRow()
+{
+    endInsertRows();
 }

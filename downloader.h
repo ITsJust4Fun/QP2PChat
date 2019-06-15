@@ -28,6 +28,7 @@ public:
     void startDownloading();
     void allowConnection(bool allowConnect);
     void rejectConnection(QTcpSocket *socket);
+    void setDownloadFiles(QList<DownloadItem *> files);
 
 
     QString downloadFolder;
@@ -51,6 +52,7 @@ private:
     QString head = "\"type\":\"p2p_connected\", \"status\":\"OK\"";
     QJsonDocument doc;
     QJsonParseError docError;
+    QList<DownloadItem *> files;
 
 signals:
     void pathChanged(const QString &path);

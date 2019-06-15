@@ -9,6 +9,8 @@
 #include <QJsonArray>
 #include <QDebug>
 
+#include "items/downloaditem.h"
+
 class Server : public QTcpServer
 {
     Q_OBJECT
@@ -38,7 +40,7 @@ public slots:
     void socketDisconnect();
     void addMsgToDatabase(const QString &user, const QString &msg);
     void setData(const QString &user, const QString &ip, const QString &mask);
-    void sendUploadRequest(const QString &user, qint64 size);
+    void sendUploadRequest(const QString &user, QList<DownloadItem *> files, qint64 size);
     void acceptUploadRequest(const QString &user);
     void rejectUploadRequest(const QString &user);
 

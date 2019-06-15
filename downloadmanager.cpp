@@ -21,6 +21,8 @@ DownloadManager::DownloadManager(QWidget *parent) :
     ui->treeView->setSortingEnabled(true);
     ui->treeView->sortByColumn(DownloadItem::NameColumn, Qt::AscendingOrder);
 
+    treeUpdater = new QThread(this);
+
     connect(uploader, SIGNAL(blockUploaded(DownloadItem *, const int)),
             downloadModel, SLOT(setProgress(DownloadItem *, const int)));
 }
@@ -70,4 +72,56 @@ QString DownloadManager::getDownloadFolder()
 void DownloadManager::setUploadFiles(QList<DownloadItem *> files)
 {
     uploader->setFiles(files);
+}
+
+void DownloadManager::setDownloadFiles(const QJsonArray &files)
+{
+    QStringList paths;
+    QString downloadFolder = downloader->downloadFolder;
+    for (auto i : files) {
+        QString path = i.toString();
+        QString filePath = downloadFolder + path;
+        QString folderPath = filePath.left(filePath.lastIndexOf('/'));
+        QFile *file = new QFile(filePath);
+        int j = 1;
+        QDir dir(folderPath);
+        dir.mkpath(folderPath);
+        while (!file->open(QIODevice::Append | QIODevice::NewOnly)) {
+            delete file;
+            int dotIndex = path.lastIndexOf('.');
+            path = path.left(dotIndex) + "(" + QString::number(j)
+                             + ")" + path.mid(dotIndex);
+            file = new QFile(downloadFolder + path);
+            j++;
+        }
+        paths.append(downloadFolder + path);
+        file->close();
+        delete file;
+    }
+    QDir dir(downloadFolder);
+    QStringList entryList = dir.entryList();
+    QStringList listForParser;
+    for (auto entry : entryList) {
+        for (auto path : paths) {
+            QString entryPath = downloadFolder + "/" + entry;
+            if (path.contains(entryPath)) {
+                listForParser.append(entryPath);
+                break;
+            }
+        }
+    }
+    parser = new FilesPathsParser(downloader->getUser(), listForParser,
+                                  downloadModel, this);
+    parser->moveToThread(treeUpdater);
+    connect(treeUpdater, SIGNAL(started()), parser, SLOT(parseFileTree()));
+    connect(parser, SIGNAL(treeIsReady()), treeUpdater, SLOT(quit()));
+    connect(parser, SIGNAL(treeIsReady()), this, SLOT(onTreeViewReady()));
+    treeUpdater->start();
+}
+
+void DownloadManager::onTreeViewReady()
+{
+    downloader->setDownloadFiles(parser->getFiles());
+    delete parser;
+    emit readyDownload(downloader->getUser());
 }

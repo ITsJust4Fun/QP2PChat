@@ -205,16 +205,29 @@ void Server::socketDisconnect()
     socket->deleteLater();
 }
 
-void Server::sendUploadRequest(const QString &user, qint64 size)
+void Server::sendUploadRequest(const QString &user, QList<DownloadItem *> files, qint64 size)
 {
     QTcpSocket *socket = findSocket(user);
-    QString ans = "{" + head + ", " + "\"user\":"
+    QString answer = "{" + head + ", " + "\"user\":"
             + "\"" + localName + "\", "
             + "\"downloader\":"
             + "\"" + "try_upload" + "\", "
             + "\"size\":"
-            + "\"" + QString::number(size) + "\"}";
-    socket->write(ans.toUtf8());
+            + "\"" + QString::number(size) + "\", "
+            + "\"files\": [";
+    QStringList paths;
+    for (auto path : files) {
+        paths.append(path->getPathView());
+    }
+    if (paths.isEmpty()) {
+        answer += "]}";
+    } else {
+        answer += "\"";
+        QString msgs = paths.join("\", \"");
+        answer += msgs + "\"]}";
+    }
+    qDebug() << answer;
+    socket->write(answer.toUtf8());
 }
 
 void Server::acceptUploadRequest(const QString &user)
