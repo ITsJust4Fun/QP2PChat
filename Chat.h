@@ -90,6 +90,8 @@ public slots:
     void readUdp();
     void addUdpUsers();
     void deleteParser();
+    void onDownloadFinished();
+    void onUploadFinished();
 
 signals:
     void messageReceived(const QString &user, const QString &msg);

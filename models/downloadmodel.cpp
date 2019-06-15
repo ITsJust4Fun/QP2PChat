@@ -166,7 +166,7 @@ DownloadItem *DownloadModel::appendTransfer(const QString &user, int mode)
         QList<QVariant> download;
         download << "Transfer #" + QString::number(name->childCount() + 1) << 0;
         DownloadItem *item = new DownloadItem(download, name);
-        name->setMode(mode);
+        item->setMode(mode);
         name->appendChild(item);
         endResetModel();
         return item;

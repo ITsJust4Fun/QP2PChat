@@ -27,6 +27,8 @@ DownloadManager::DownloadManager(QWidget *parent) :
             downloadModel, SLOT(setProgress(DownloadItem *, const int)));
     connect(downloader, SIGNAL(progressUpdated(DownloadItem *, const int)),
             downloadModel, SLOT(setProgress(DownloadItem *, const int)));
+    connect(uploader, SIGNAL(uploaded()), this, SLOT(onUploaded()));
+    connect(downloader, SIGNAL(downloaded()), this, SLOT(onDownloaded()));
 }
 
 DownloadManager::~DownloadManager()
@@ -120,4 +122,14 @@ void DownloadManager::onTreeViewReady()
     downloader->setDownloadFiles(parser->getFiles());
     delete parser;
     emit readyDownload(downloader->getUser());
+}
+
+void DownloadManager::onDownloaded()
+{
+    emit downloadFinished();
+}
+
+void DownloadManager::onUploaded()
+{
+    emit uploadFinished();
 }

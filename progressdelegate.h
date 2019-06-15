@@ -3,8 +3,7 @@
 
 #include <QStyledItemDelegate>
 #include <QApplication>
-
-#include "items/downloaditem.h"
+#include <QPainter>
 
 class ProgressDelegate : public QStyledItemDelegate
 {

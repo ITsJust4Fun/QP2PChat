@@ -79,6 +79,8 @@ void Chat::connectAll()
             this, SLOT(getMessages(QListWidgetItem *)));
     connect(downloadManager, SIGNAL(readyDownload(const QString &)),
             server, SLOT(acceptUploadRequest(const QString &)));
+    connect(downloadManager, SIGNAL(downloadFinished()), this, SLOT(onDownloadFinished()));
+    connect(downloadManager, SIGNAL(uploadFinished()), this, SLOT(onUploadFinished()));
 }
 
 
@@ -301,6 +303,10 @@ void Chat::socketReady()
                                   doc.object().value("size").toString().toLongLong());
             } else if (doc.object().value("downloader") == "upload_accepted") {
                 downloadManager->startUploading(socket->peerAddress().toString());
+            } else if (doc.object().value("downloader") == "upload_rejected") {
+                QMessageBox messageBox;
+                messageBox.critical(this, "Error", "User is downloading now!");
+                messageBox.setFixedSize(500,200);
             }
         } else {
             if (!sockets.contains(socket)) {
@@ -540,6 +546,9 @@ void Chat::deleteParser()
 
 void Chat::showUploadRequest(const QString &user, const QJsonArray &files, const qint64 size)
 {
+    if (isDowloading) {
+        server->rejectUploadRequest(user);
+    }
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "UploadRequest",
                                   QString("Do you want start downloading files\n")
@@ -556,10 +565,21 @@ void Chat::showUploadRequest(const QString &user, const QJsonArray &files, const
             server->rejectUploadRequest(user);
             return;
         }
+        isDowloading = true;
         downloadManager->setDownloadFolder(folder);
         downloadManager->setUser(user);
         downloadManager->setDownloadFiles(files);
     } else {
         server->rejectUploadRequest(user);
     }
+}
+
+void Chat::onDownloadFinished()
+{
+    isDowloading = false;
+}
+
+void Chat::onUploadFinished()
+{
+    isUploading = false;
 }

@@ -75,7 +75,13 @@ QString DownloadItem::getPathView()
 
 void DownloadItem::setProgress(int progress)
 {
-    m_itemData[ProgressColumn] = progress;
+    QString progressData = QString::number(progress);
+    if (itemMode == DownloadMode) {
+        progressData = "Downloading " + progressData;
+    } else if (itemMode == UploadMode) {
+        progressData = "Uploading " + progressData;
+    }
+    m_itemData[ProgressColumn] = progressData;
     m_parentItem->updateProgress();
 }
 
@@ -96,7 +102,10 @@ void DownloadItem::updateProgress()
     }
     double totalProgress = 0;
     for (auto item : m_childItems) {
-        totalProgress += item->data(ProgressColumn).toInt();
+        QStringList data = item->data(ProgressColumn).toString().split(" ");
+        int progressIndex = data.size() > 1 ? 1 : 0;
+        int progress = data[progressIndex].toInt();
+        totalProgress += progress;
     }
     if (m_childItems.count() > 0) {
         int progress = qRound(totalProgress / m_childItems.count());

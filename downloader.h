@@ -8,6 +8,7 @@
 #include <QJsonDocument>
 #include <QJsonParseError>
 #include <QDir>
+#include <QTimer>
 #include <QDebug>
 
 #include "Server.h"
@@ -51,17 +52,21 @@ private:
     QJsonParseError docError;
     QList<DownloadItem *> files;
     DownloadItem *currentFile;
+    QTimer *timer;
+    const int MAX_DELAY = 500;
+
 
 signals:
     void pathChanged(const QString &path);
     void progressUpdated(DownloadItem* item, const int progress) const;
-    void downloadFinished();
+    void downloaded();
 
 public slots:
     void startServer();
     void socketReady();
     void socketDisconnect();
     void sendMessage(const QString &message);
+    void disconnectFromUploader();
 };
 
 #endif // DOWNLOADER_H

@@ -8,6 +8,8 @@ Downloader::Downloader(QObject *parent) :
     path = "";
     user = "";
     socket = nullptr;
+    timer = new QTimer(this);
+    timer->setInterval(MAX_DELAY);
 }
 
 Downloader::~Downloader()
@@ -28,10 +30,12 @@ void Downloader::incomingConnection(qintptr socketDescriptor)
 
     connect(socket, SIGNAL(readyRead()), this, SLOT(socketReady()));
     connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconnect()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(disconnectFromUploader()));
 
     qDebug() << "connected " + socket->peerAddress().toString().mid(7);
     sendMessage("next_file");
     allowConnect = false;
+    timer->start();
 }
 
 void Downloader::startDownloading()
@@ -60,10 +64,16 @@ void Downloader::startServer()
 
 void Downloader::socketReady()
 {
+    timer->start();
     QByteArray data = socket->readAll();
     doc = QJsonDocument::fromJson(data, &docError);
     if (isDownloadFinished) {
         if (Server::isJsonValid(doc, docError)) {
+            if (doc.object().value("downloader") != QJsonValue::Undefined) {
+                socket->disconnectFromHost();
+                emit downloaded();
+                return;
+            }
             path = doc.object().value("path").toString();
             fileSize = doc.object().value("size").toString().toLongLong();
             startDownloading();
@@ -88,13 +98,21 @@ void Downloader::socketReady()
 
 void Downloader::socketDisconnect()
 {
+    timer->stop();
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
     qDebug() << "disconnected " + socket->peerAddress().toString().mid(7);
     socket->deleteLater();
     if (!isDownloadFinished) {
-        file->remove();
+        file->close();
+        delete file;
         isDownloadFinished = true;
+        for (auto item : files) {
+            QFile(item->getPath()).remove();
+        }
+        files.clear();
+        emit downloaded();
     }
+    this->socket = nullptr;
 }
 
 void Downloader::rejectConnection(QTcpSocket *socket)
@@ -104,20 +122,15 @@ void Downloader::rejectConnection(QTcpSocket *socket)
     socket->write(answer.toUtf8());
     socket->disconnectFromHost();
     socket->deleteLater();
-    socket = nullptr;
 }
 
 void Downloader::finishDownload()
 {
     file->close();
-    /*QFileInfo fileInfo(file->fileName());
-    QString fileName = fileInfo.fileName();
-    file->rename(fileName.left(fileName.lastIndexOf('.')));
-    delete file;
-    emit downloadFinished();*/
     isDownloadFinished = true;
     files.removeOne(currentFile);
     sendMessage("next_file");
+    delete file;
 }
 
 void Downloader::setPath(const QString &path)
@@ -165,4 +178,9 @@ void Downloader::sendMessage(const QString &message)
 void Downloader::setDownloadFiles(QList<DownloadItem *> files)
 {
     this->files = files;
+}
+
+void Downloader::disconnectFromUploader()
+{
+    socket->disconnectFromHost();
 }

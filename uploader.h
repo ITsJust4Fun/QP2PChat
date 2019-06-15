@@ -6,6 +6,7 @@
 #include <QHostAddress>
 #include <QJsonDocument>
 #include <QJsonParseError>
+#include <QTimer>
 
 #include "Server.h"
 #include "items/downloaditem.h"
@@ -38,17 +39,17 @@ private:
     DownloadItem *currentFile;
     qint64 numberOfBlocks;
     qint64 uploadedBlocks;
+    QTimer *timer;
+    const int MAX_DELAY = 500;
 
 signals:
     void blockUploaded(DownloadItem *item, const int progress) const;
-    void fileUploaded() const;
-    void connected();
-    void startUploading(const QString &path);
+    void uploaded();
 
 public slots:
     void socketReady();
     void socketDisconnect();
-    void updateProgress(qint64 bytes);
+    void disconnectFromDownloader();
 };
 
 #endif // UPLOADER_H

@@ -2,7 +2,9 @@
 
 Uploader::Uploader(QObject *parent) : QObject(parent)
 {
-
+    timer = new QTimer(this);
+    timer->setInterval(MAX_DELAY);
+    file = nullptr;
 }
 
 Uploader::~Uploader()
@@ -12,6 +14,7 @@ Uploader::~Uploader()
 
 void Uploader::socketReady()
 {
+    timer->start();
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
     QByteArray data = socket->readAll();
     doc = QJsonDocument::fromJson(data, &docError);
@@ -22,6 +25,12 @@ void Uploader::socketReady()
                 currentFile = files.first();
                 sendFileInfo(currentFile->getPathView(),
                              QString::number(QFile(currentFile->getPath()).size()));
+            } else {
+                QString ans = "{" + head + ", "
+                        + "\"downloader\":"
+                        + "\"" + "ended" + "\"}";
+                socket->write(ans.toUtf8());
+                disconnectFromDownloader();
             }
         } else if (doc.object().value("downloader") == "ready_download") {
             uploadFile();
@@ -37,11 +46,7 @@ void Uploader::socketDisconnect()
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
     qDebug() << "disconnected " + socket->peerAddress().toString();
     socket->deleteLater();
-}
-
-void Uploader::updateProgress(qint64 bytes)
-{
-    qDebug() << bytes;
+    emit uploaded();
 }
 
 void Uploader::sendFileInfo(const QString &path, const QString &size)
@@ -59,6 +64,7 @@ void Uploader::connectToServer()
     socket = new QTcpSocket(this);
     connect(socket, SIGNAL(readyRead()), this, SLOT(socketReady()));
     connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisconnect()));
+    connect(timer, SIGNAL(timeout()), this, SLOT(disconnectFromDownloader()));
     socket->connectToHost(ip, port);
 }
 
@@ -101,5 +107,16 @@ void Uploader::uploadNextBlock()
     if (numberOfBlocks == uploadedBlocks) {
         file->close();
         delete file;
+        file = nullptr;
     }
+}
+
+void Uploader::disconnectFromDownloader()
+{
+    if (file) {
+        delete file;
+        file = nullptr;
+    }
+    socket->disconnectFromHost();
+    timer->stop();
 }

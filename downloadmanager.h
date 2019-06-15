@@ -38,8 +38,6 @@ private:
     ProgressDelegate *progressDelegate;
     Downloader *downloader;
     Uploader *uploader;
-    QList<DownloadItem *> uploadList;
-    QMap<QString, QList<DownloadItem *> *> downloadList;
     QThread *treeUpdater;
     FilesPathsParser *parser;
     QString downloadFolder;
@@ -47,9 +45,13 @@ private:
 signals:
     void uploaderReady();
     void readyDownload(const QString &user);
+    void downloadFinished();
+    void uploadFinished();
 
 public slots:
     void onTreeViewReady();
+    void onDownloaded();
+    void onUploaded();
 };
 
 #endif // DOWNLOADMANAGERDIALOG_H
