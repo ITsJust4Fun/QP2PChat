@@ -110,7 +110,7 @@ void DownloadManager::setDownloadFiles(const QJsonArray &files)
         }
     }
     parser = new FilesPathsParser(downloader->getUser(), listForParser,
-                                  downloadModel, this);
+                                  downloadModel);
     parser->moveToThread(treeUpdater);
     connect(treeUpdater, SIGNAL(started()), parser, SLOT(parseFileTree()));
     connect(parser, SIGNAL(treeIsReady()), treeUpdater, SLOT(quit()));

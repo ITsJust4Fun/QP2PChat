@@ -544,8 +544,9 @@ void Chat::showUploadRequest(const QString &user, const QJsonArray &files, const
     reply = QMessageBox::question(this, "UploadRequest",
                                   QString("Do you want start downloading files\n")
                                   + "from user: " + user + "\n"
-                                  + "Files size: " + QString::number(static_cast<double>(size) / (1024 * 1024)),
-                                  QMessageBox::Yes|QMessageBox::No);
+                                  + "Files size: "
+                                  + QString::number(static_cast<double>(size) / (1024 * 1024))
+                                  + " mb", QMessageBox::Yes|QMessageBox::No);
 
     if (reply == QMessageBox::Yes) {
         QString folder = QFileDialog::getExistingDirectory(this,
