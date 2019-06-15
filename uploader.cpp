@@ -24,8 +24,10 @@ void Uploader::socketReady()
                              QString::number(QFile(currentFile->getPath()).size()));
             }
         } else if (doc.object().value("downloader") == "ready_download") {
-            uploadFile(currentFile);
+            uploadFile();
             files.removeOne(currentFile);
+        } else if (doc.object().value("downloader") == "next_block") {
+            uploadNextBlock();
         }
     }
 }
@@ -75,24 +77,29 @@ void Uploader::setFiles(QList<DownloadItem *> files)
     this->files = files;
 }
 
-void Uploader::uploadFile(DownloadItem *item) const
+void Uploader::uploadFile()
 {
-    QFile *file = new QFile(item->getPath());
+    file = new QFile(currentFile->getPath());
     if (!file->open(QIODevice::ReadOnly)) {
         qDebug() << "can't open file!!!";
         return;
     }
     qint64 fileSize = file->size();
-    qint64 numberOfBlocks = fileSize / BUFFER_SIZE;
+    numberOfBlocks = fileSize / BUFFER_SIZE;
     numberOfBlocks = fileSize % BUFFER_SIZE != 0 ? numberOfBlocks + 1 : numberOfBlocks;
-    for (qint64 i = 0; i < numberOfBlocks; i++) {
-        QByteArray arr;
-        arr = file->read(BUFFER_SIZE);
-        socket->write(arr);
-        socket->flush();
-        emit blockUploaded(item, static_cast<int>((i + 1) * 100 / numberOfBlocks));
+    uploadedBlocks = 0;
+    uploadNextBlock();
+}
+
+void Uploader::uploadNextBlock()
+{
+    QByteArray arr = file->read(BUFFER_SIZE);
+    socket->write(arr);
+    socket->flush();
+    uploadedBlocks++;
+    emit blockUploaded(currentFile, static_cast<int>(uploadedBlocks * 100 / numberOfBlocks));
+    if (numberOfBlocks == uploadedBlocks) {
+        file->close();
+        delete file;
     }
-    emit fileUploaded();
-    file->close();
-    delete file;
 }

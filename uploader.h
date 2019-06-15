@@ -19,7 +19,8 @@ public:
 
     void setIp(const QString &ip);
     QString getIp() const;
-    void uploadFile(DownloadItem *item) const;
+    void uploadFile();
+    void uploadNextBlock();
     void connectToServer();
     void setFiles(QList<DownloadItem *> files);
     void sendFileInfo(const QString &path, const QString &size);
@@ -35,6 +36,8 @@ private:
     QJsonParseError docError;
     QList<DownloadItem *> files;
     DownloadItem *currentFile;
+    qint64 numberOfBlocks;
+    qint64 uploadedBlocks;
 
 signals:
     void blockUploaded(DownloadItem *item, const int progress) const;
