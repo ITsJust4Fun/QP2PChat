@@ -305,6 +305,7 @@ void Chat::socketReady()
             } else if (doc.object().value("downloader") == "upload_accepted") {
                 downloadManager->startUploading(socket->peerAddress().toString());
             } else if (doc.object().value("downloader") == "upload_rejected") {
+                isUploading = false;
                 QMessageBox messageBox;
                 messageBox.critical(this, "Error", "User is downloading now!");
                 messageBox.setFixedSize(500,200);
