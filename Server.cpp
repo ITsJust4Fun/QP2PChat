@@ -51,8 +51,12 @@ void Server::addNewUser(QJsonDocument &doc, QTcpSocket *socket)
     }
     QMap<QString, QList<QString>> info;
     QJsonArray messages = doc.object().value("messages").toArray();
-    QList<QString> list = changeSenderInMessages(messages, user);
-    QList<QString> ipList;
+    QStringList list;
+    for (auto message : messages) {
+        list.append(message.toString());
+    }
+    //QList<QString> list = changeSenderInMessages(messages, user);
+    QStringList ipList;
     ipList.append(ip);
     info.insert("ip", ipList);
     info.insert("messages", list);
@@ -68,11 +72,11 @@ QList<QString> Server::changeSenderInMessages(QJsonArray &messages, const QStrin
     QList<QString> list;
     for (auto i : messages) {
         QString message = i.toString();
-        if ((message.indexOf('[') != -1)
-                && (message.indexOf("]:") != -1)) {
+
+        if (message.indexOf("]")) {
             message = message.mid(message.indexOf("]:") + 2);
         } else {
-            message = "[" + user + "]:" + message;
+            message = "[" + user + "]: " + message;
         }
         list.append(message);
     }
@@ -92,7 +96,7 @@ void Server::sendMessage(QJsonDocument &doc)
         QString ans = "{" + head + ", " + "\"user\":"
                 + "\"" + localName + "\", "
                 + "\"message\":"
-                + "\"" + "[" + localName + "]:" + msg + "\"}";
+                + "\"" + msg + "\"}";
         socket->write(ans.toUtf8());
     }
 }

@@ -250,6 +250,7 @@ void Chat::sendMessage()
     }
     QString user = ui->listWidget->currentItem()->text();
     QString msg = ui->messageEdit->toPlainText();
+    msg = "[" + localName + "]: " + msg;
     ui->messageEdit->clear();
     ui->messageArea->append(msg);
     scrollToBottom();
