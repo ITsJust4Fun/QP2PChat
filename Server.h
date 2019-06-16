@@ -22,7 +22,6 @@ public:
     static bool isJsonValid(QJsonDocument &doc, QJsonParseError &docError);
     void connectWithServerReq(const QString &ip);
     QStringList getMessagesFrom(const QString &user);
-    QList<QString> changeSenderInMessages(QJsonArray &messages, const QString &user);
     virtual ~Server();
 
     QList<QTcpSocket *> sockets;

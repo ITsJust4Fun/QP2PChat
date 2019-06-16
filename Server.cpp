@@ -55,32 +55,11 @@ void Server::addNewUser(QJsonDocument &doc, QTcpSocket *socket)
     for (auto message : messages) {
         list.append(message.toString());
     }
-    //QList<QString> list = changeSenderInMessages(messages, user);
     QStringList ipList;
     ipList.append(ip);
     info.insert("ip", ipList);
     info.insert("messages", list);
     users->insert(user, info);
-}
-
-/*
- * Внесение данных о сообщениях
- * от удалённого сервера
-*/
-QList<QString> Server::changeSenderInMessages(QJsonArray &messages, const QString &user)
-{
-    QList<QString> list;
-    for (auto i : messages) {
-        QString message = i.toString();
-
-        if (message.indexOf("]")) {
-            message = message.mid(message.indexOf("]:") + 2);
-        } else {
-            message = "[" + user + "]: " + message;
-        }
-        list.append(message);
-    }
-    return list;
 }
 
 /*
