@@ -27,6 +27,8 @@ DownloadManager::DownloadManager(QWidget *parent) :
             downloadModel, SLOT(setProgress(DownloadItem *, const int)));
     connect(downloader, SIGNAL(progressUpdated(DownloadItem *, const int)),
             downloadModel, SLOT(setProgress(DownloadItem *, const int)));
+    connect(ui->treeView, SIGNAL(doubleClicked(const QModelIndex &)),
+            this, SLOT(openFile(const QModelIndex &)));
     connect(uploader, SIGNAL(uploaded()), this, SLOT(onUploaded()));
     connect(downloader, SIGNAL(downloaded()), this, SLOT(onDownloaded()));
 }
@@ -140,4 +142,21 @@ void DownloadManager::onDownloaded()
 void DownloadManager::onUploaded()
 {
     emit uploadFinished();
+}
+
+void DownloadManager::openFile(const QModelIndex &index)
+{
+    if (!index.isValid()) {
+        return;
+    }
+
+    QModelIndex mapped = downloadSortFilterProxyModel->mapToSource(index);
+
+    DownloadItem *item = static_cast<DownloadItem *>(mapped.internalPointer());
+
+    QString path = "file://" + item->getPath();
+    if (!path.isEmpty()) {
+        QUrl url = QUrl::fromLocalFile(path);
+        QDesktopServices::openUrl(url);
+    }
 }

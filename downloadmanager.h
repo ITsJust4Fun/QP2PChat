@@ -5,6 +5,8 @@
 #include <QThread>
 #include <QFile>
 #include <QFileInfo>
+#include <QUrl>
+#include <QDesktopServices>
 
 #include "models/downloadmodel.h"
 #include "models/downloadsortfilterproxymodel.h"
@@ -54,6 +56,7 @@ public slots:
     void onTreeViewReady();
     void onDownloaded();
     void onUploaded();
+    void openFile(const QModelIndex &index);
 };
 
 #endif // DOWNLOADMANAGERDIALOG_H
