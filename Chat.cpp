@@ -476,11 +476,16 @@ void Chat::clearTimeSockets()
  * Разрыв соединений при закрытии
  * приложения
 */
-void Chat::closeEvent (QCloseEvent *event)
+void Chat::closeEvent(QCloseEvent *event)
 {
     for (auto i : sockets) {
         i->disconnectFromHost();
     }
+
+    downloadManager->close();
+    addForm->close();
+    settings->close();
+
     event->accept();
 }
 
