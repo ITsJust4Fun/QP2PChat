@@ -150,9 +150,17 @@ void DownloadManager::openFile(const QModelIndex &index)
         return;
     }
 
-    QModelIndex mapped = downloadSortFilterProxyModel->mapToSource(index);
+    QModelIndex sourceIndex = downloadSortFilterProxyModel->mapToSource(index);
 
-    DownloadItem *item = static_cast<DownloadItem *>(mapped.internalPointer());
+    DownloadItem *item = static_cast<DownloadItem *>(sourceIndex.internalPointer());
+
+    QStringList data = item->data(DownloadItem::ProgressColumn).toString().split(" ");
+    int progressIndex = data.size() > 1 ? 1 : 0;
+    int value = data[progressIndex].toInt();
+
+    if (value != 100) {
+        return;
+    }
 
     QString path = "file://" + item->getPath();
     if (!path.isEmpty()) {
