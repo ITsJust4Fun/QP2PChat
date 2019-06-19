@@ -13,5 +13,6 @@
         <file>icons/download.png</file>
         <file>icons/user.png</file>
         <file>icons/transfer.png</file>
+        <file>icons/attach.png</file>
     </qresource>
 </RCC>

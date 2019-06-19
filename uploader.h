@@ -40,7 +40,7 @@ private:
     qint64 numberOfBlocks;
     qint64 uploadedBlocks;
     QTimer *timer;
-    const int MAX_DELAY = 500;
+    const int MAX_DELAY = 10000;
 
 signals:
     void blockUploaded(DownloadItem *item, const int progress) const;

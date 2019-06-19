@@ -53,7 +53,7 @@ private:
     QList<DownloadItem *> files;
     DownloadItem *currentFile;
     QTimer *timer;
-    const int MAX_DELAY = 500;
+    const int MAX_DELAY = 10000;
 
 
 signals:

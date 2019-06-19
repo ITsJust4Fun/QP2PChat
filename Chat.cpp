@@ -57,13 +57,13 @@ void Chat::connectAll()
     connect(ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
     connect(ui->actionScan, SIGNAL(triggered()), this, SLOT(scan()));
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
-    connect(ui->actionSettings, SIGNAL(triggered()), settings, SLOT(show()));
-    connect(ui->actionAddUser, SIGNAL(triggered()), addForm, SLOT(show()));
-    connect(ui->actionDownloads, SIGNAL(triggered()), downloadManager, SLOT(show()));
+    connect(ui->actionSettings, SIGNAL(triggered()), this, SLOT(openSettings()));
+    connect(ui->actionAddUser, SIGNAL(triggered()), this, SLOT(openAddForm()));
+    connect(ui->actionDownloads, SIGNAL(triggered()), this, SLOT(openDownloadManager()));
 
     connectSocket(sockets[0]);
 
-    connect(ui->buttonSend, SIGNAL(pressed()), this, SLOT(sendMessage()));
+    connect(ui->buttonSend, SIGNAL(clicked()), this, SLOT(sendMessage()));
     connect(sendMsg, SIGNAL(activated()), this, SLOT(sendMessage()));
     connect(timer, SIGNAL(timeout()), this, SLOT(clearTimeSockets()));
     connect(udpTimer, SIGNAL(timeout()), this, SLOT(addUdpUsers()));
@@ -77,6 +77,7 @@ void Chat::connectAll()
             this, SLOT(addUser(const QString &)));
     connect(ui->listWidget, SIGNAL(itemClicked(QListWidgetItem *)),
             this, SLOT(getMessages(QListWidgetItem *)));
+    connect(ui->attach, SIGNAL(clicked()), this, SLOT(uploadFiles()));
     connect(downloadManager, SIGNAL(readyDownload(const QString &)),
             server, SLOT(acceptUploadRequest(const QString &)));
     connect(downloadManager, SIGNAL(downloadFinished()), this, SLOT(onDownloadFinished()));
@@ -530,12 +531,7 @@ void Chat::dropEvent(QDropEvent *event)
     QStringList paths = event->mimeData()->text().remove("file:///").split("\n");
     paths.removeAll("");
     event->acceptProposedAction();
-    parser = new FilesPathsParser(user, paths, downloadManager->getModel(), DownloadItem::UploadMode);
-    parser->moveToThread(treeFillThread);
-    connect(treeFillThread, SIGNAL(started()), parser, SLOT(parseFileTree()));
-    connect(parser, SIGNAL(treeIsReady()), treeFillThread, SLOT(quit()));
-    connect(parser, SIGNAL(treeIsReady()), this, SLOT(deleteParser()));
-    treeFillThread->start();
+    parseFiles(user, paths);
 }
 
 void Chat::deleteParser()
@@ -576,6 +572,57 @@ void Chat::showUploadRequest(const QString &user, const QJsonArray &files, const
     }
 }
 
+void Chat::parseFiles(const QString &user, QStringList &paths)
+{
+    parser = new FilesPathsParser(user, paths, downloadManager->getModel(), DownloadItem::UploadMode);
+    parser->moveToThread(treeFillThread);
+    connect(treeFillThread, SIGNAL(started()), parser, SLOT(parseFileTree()));
+    connect(parser, SIGNAL(treeIsReady()), treeFillThread, SLOT(quit()));
+    connect(parser, SIGNAL(treeIsReady()), this, SLOT(deleteParser()));
+    treeFillThread->start();
+}
+
+void Chat::uploadFiles()
+{
+    if (treeFillThread->isRunning()) {
+        QMessageBox::warning(this, tr("Warning"),
+                             tr("Tree is filling.\n"
+                                "Please wait"),
+                             QMessageBox::Ok);
+        return;
+    }
+    if (isUploading) {
+        QMessageBox::warning(this, tr("Warning"),
+                             tr("Already uploading\n"
+                                "Please wait"),
+                             QMessageBox::Ok);
+        return;
+    }
+    if (!isDataSet) {
+        QMessageBox messageBox;
+        messageBox.critical(this, "Error", noDataErr);
+        messageBox.setFixedSize(500,200);
+        return;
+    }
+    if (!ui->listWidget->currentItem()) {
+        QMessageBox messageBox;
+        messageBox.critical(this, "Error", selectUserErr);
+        messageBox.setFixedSize(500,200);
+        return;
+    }
+
+    QStringList paths = QFileDialog::getOpenFileNames(
+                            this,
+                            "Select one or more files to upload",
+                            "",
+                            "All (*)");
+    if (paths.isEmpty()) {
+        return;
+    }
+    QString user = ui->listWidget->currentItem()->text();
+    parseFiles(user, paths);
+}
+
 void Chat::onDownloadFinished()
 {
     isDowloading = false;
@@ -584,4 +631,22 @@ void Chat::onDownloadFinished()
 void Chat::onUploadFinished()
 {
     isUploading = false;
+}
+
+void Chat::openDownloadManager()
+{
+    downloadManager->show();
+    downloadManager->activateWindow();
+}
+
+void Chat::openSettings()
+{
+    settings->show();
+    settings->activateWindow();
+}
+
+void Chat::openAddForm()
+{
+    addForm->show();
+    addForm->activateWindow();
 }

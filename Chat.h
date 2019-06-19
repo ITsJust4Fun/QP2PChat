@@ -46,6 +46,7 @@ public:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
     void showUploadRequest(const QString &user, const QJsonArray &files, const qint64 size);
+    void parseFiles(const QString &user, QStringList &paths);
     virtual ~Chat() override;
 
     QList<QTcpSocket *> sockets;
@@ -92,6 +93,10 @@ public slots:
     void deleteParser();
     void onDownloadFinished();
     void onUploadFinished();
+    void uploadFiles();
+    void openDownloadManager();
+    void openSettings();
+    void openAddForm();
 
 signals:
     void messageReceived(const QString &user, const QString &msg);
